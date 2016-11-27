@@ -1,0 +1,99 @@
+
+  {
+    "intents": [
+      {
+        "intent": "GetChargeLevel",
+        "slots": [
+
+        ]
+      },
+      {
+        "intent": "GetOdometer",
+        "slots": [
+
+        ]
+      },
+      {
+        "intent": "GetRange",
+        "slots": [
+        ]
+      },
+      {
+        "intent": "GetPluggedIn",
+        "slots": [
+
+        ]
+      },
+      {
+        "intent": "GetTemperatures",
+        "slots": [
+        ]
+      },
+      {
+        "intent": "GetLocked",
+        "slots": [
+
+        ]
+      },
+      {
+        "intent": "GetStatus",
+        "slots": [
+
+        ]
+      },
+      {
+        "intent": "GetStatusQuick",
+        "slots": [
+
+        ]
+      },
+      {
+        "intent": "UnlockCar",
+        "slots": [
+
+        ]
+      },
+      {
+        "intent": "LockCar",
+        "slots": [
+
+        ]
+      },
+      {
+        "intent": "ChargeStop",
+        "slots": [
+
+        ]
+      },
+      {
+        "intent": "ChargeStart",
+        "slots": [
+
+        ]
+      },
+          {
+        "intent": "DataPrint",
+        "slots": [
+
+        ]
+      },
+      {
+        "intent": "ChargeSet",
+        "slots": [
+          {
+          "name": "limit",
+          "type": "AMAZON.NUMBER"
+          }
+        ]
+      },
+      {
+        "intent": "UnlockCarDuration",
+        "slots": [
+          {
+          "name": "mins",
+          "type": "AMAZON.NUMBER"
+          }
+        ]
+      }
+    ]
+  }

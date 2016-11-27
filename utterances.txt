@@ -1,0 +1,90 @@
+GetChargeLevel How charged is my car
+GetChargeLevel What is the charge level
+GetChargeLevel Is my car charged
+GetChargeLevel Whats the charge level
+GetChargeLevel Whats the charge
+GetChargeLevel What is the charge
+GetChargeLevel What the charge is
+GetChargeLevel How charged my car is
+GetChargeLevel Whats the level of charge
+GetChargeLevel Whats the amount of charge
+GetChargeLevel Whats the charge amount
+GetOdometer What my mileage reads
+GetOdometer What my odometer reads
+GetOdometer What my mileage is
+GetOdometer What my odometer is
+GetOdometer What my mileage says
+GetOdometer What my odometer says
+GetOdometer What my cars mileage is
+GetOdometer What my cars odometer is
+GetOdometer What my cars mileage reads
+GetOdometer What my cars odometer reads
+GetRange What my range is
+GetRange How far I can drive
+GetRange How far I can go
+GetRange How far I can go on the current charge
+GetRange How far I can get
+GetRange How far I can drive on the current charge
+GetRange How far I can get on the current charge
+GetRange The distance I can drive
+GetPluggedIn If my car is plugged in
+GetPluggedIn If my cars plugged in
+GetPluggedIn If my car charger is plugged in
+GetPluggedIn If I'm charging
+GetTemperatures How warm my car is
+GetTemperatures How cold my car is
+GetTemperatures What temperature my car is
+GetTemperatures What is the temperature of my car
+GetTemperatures What my cars temperature is
+GetTemperatures How warm is my car
+GetTemperatures How cold is my car
+GetTemperatures Is my car warm
+GetTemperatures Is my car cold
+GetLocked If my car is locked
+GetLocked Whether my car is locked
+GetLocked Is my car locked
+GetStatus Whats the status of my car
+GetStatus What is the status of my car
+GetStatus What the status of my car is
+GetStatus Whats going on with my car
+GetStatus To tell me about my car
+GetStatus To check on my car
+GetStatus To give me a status check on my car
+GetStatus My car's status
+GetStatus Whats up with my car
+GetStatus The scoop on my car
+GetStatusQuick Quick status
+GetStatusQuick For the status brief
+GetStatusQuick For a quick check
+UnlockCar To unlock the car
+UnlockCar To unlock my car
+UnlockCar Unlock my car
+UnlockCar Unlock the car
+UnlockCarDuration To unlock the car for {mins} minutes
+UnlockCarDuration To unlock my car for {mins} minutes
+UnlockCarDuration Unlock my car for {mins} minutes
+UnlockCarDuration Unlock the car for {mins} minutes
+LockCar To lock the car
+LockCar To lock my car
+LockCar Lock my car
+LockCar Lock the car
+ChargeStop To stop charging
+ChargeStop To turn charging off
+ChargeStop Stop charging
+ChargeStop To turn the charger off
+ChargeStop To stop charging my car
+ChargeStart To charge my car
+ChargeStart To start charging
+ChargeStart To turn the charger on
+ChargeStart To charge the car
+ChargeSet To set my charge limit to {limit} percent
+ChargeSet To limit my charge to {limit} percent
+ChargeSet To stop charging at {limit} percent
+ChargeSet To set the charge limit to {limit} percent
+DataPrint To print out the data on my car
+DataPrint To fetch the API data on my car
+DataPrint To print the API data on my car
+DataDump To dump my car's data to a file
+DataDump To dump my car's data
+DataDump To dump the API data on my car to a file
+DataDump To dump the API data on my car

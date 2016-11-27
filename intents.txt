@@ -1,99 +1,105 @@
 
-  {
-    "intents": [
-      {
-        "intent": "GetChargeLevel",
-        "slots": [
+{
+  "intents": [
+    {
+      "intent": "GetChargeLevel",
+      "slots": [
 
-        ]
-      },
-      {
-        "intent": "GetOdometer",
-        "slots": [
+      ]
+    },
+    {
+      "intent": "GetOdometer",
+      "slots": [
 
-        ]
-      },
-      {
-        "intent": "GetRange",
-        "slots": [
-        ]
-      },
-      {
-        "intent": "GetPluggedIn",
-        "slots": [
+      ]
+    },
+	{
+      "intent": "GetRange",
+      "slots": [
+      ]
+    },
+	{
+      "intent": "GetPluggedIn",
+      "slots": [
 
-        ]
-      },
-      {
-        "intent": "GetTemperatures",
-        "slots": [
-        ]
-      },
-      {
-        "intent": "GetLocked",
-        "slots": [
+      ]
+    },
+	{
+      "intent": "GetTemperatures",
+      "slots": [
+      ]
+    },
+	{
+      "intent": "GetLocked",
+      "slots": [
 
-        ]
-      },
-      {
-        "intent": "GetStatus",
-        "slots": [
+      ]
+    },
+	{
+      "intent": "GetStatus",
+      "slots": [
 
-        ]
-      },
-      {
-        "intent": "GetStatusQuick",
-        "slots": [
+      ]
+    },
+    {
+      "intent": "GetStatusQuick",
+      "slots": [
 
-        ]
-      },
-      {
-        "intent": "UnlockCar",
-        "slots": [
+      ]
+    },
+    {
+      "intent": "UnlockCar",
+      "slots": [
 
-        ]
-      },
-      {
-        "intent": "LockCar",
-        "slots": [
+      ]
+    },
+    {
+      "intent": "LockCar",
+      "slots": [
 
-        ]
-      },
-      {
-        "intent": "ChargeStop",
-        "slots": [
+      ]
+    },
+    {
+      "intent": "ChargeStop",
+      "slots": [
 
-        ]
-      },
-      {
-        "intent": "ChargeStart",
-        "slots": [
+      ]
+    },
+    {
+      "intent": "ChargeStart",
+      "slots": [
 
-        ]
-      },
-          {
-        "intent": "DataPrint",
-        "slots": [
+      ]
+    },
+        {
+      "intent": "DataPrint",
+      "slots": [
 
-        ]
-      },
-      {
-        "intent": "ChargeSet",
-        "slots": [
-          {
-          "name": "limit",
-          "type": "AMAZON.NUMBER"
-          }
-        ]
-      },
-      {
-        "intent": "UnlockCarDuration",
-        "slots": [
-          {
-          "name": "mins",
-          "type": "AMAZON.NUMBER"
-          }
-        ]
-      }
-    ]
-  }
+      ]
+    },
+        {
+      "intent": "DataDump",
+      "slots": [
+
+      ]
+    },
+    {
+      "intent": "ChargeSet",
+      "slots": [
+        {
+        "name": "limit",
+        "type": "AMAZON.NUMBER"
+        }
+      ]
+    },
+    {
+      "intent": "UnlockCarDuration",
+      "slots": [
+        {
+        "name": "mins",
+        "type": "AMAZON.NUMBER"
+        }
+      ]
+    }
+  ]
+}

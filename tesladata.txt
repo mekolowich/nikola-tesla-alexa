@@ -1,0 +1,116 @@
+charge_state
+   battery_current                          23.2
+   battery_heater_on                        False
+   battery_level                            68
+   battery_range                            170.69
+   charge_current_request                   40
+   charge_current_request_max               40
+   charge_enable_request                    True
+   charge_energy_added                      34.95
+   charge_limit_soc                         90
+   charge_limit_soc_max                     100
+   charge_limit_soc_min                     50
+   charge_limit_soc_std                     90
+   charge_miles_added_ideal                 138.0
+   charge_miles_added_rated                 108.0
+   charge_port_door_open                    True
+   charge_port_latch                        Engaged
+   charge_rate                              27.0
+   charge_to_max_range                      False
+   charger_actual_current                   40
+   charger_phases                           1
+   charger_pilot_current                    40
+   charger_power                            10
+   charger_voltage                          245
+   charging_state                           Charging
+   est_battery_range                        150.35
+   eu_vehicle                               False
+   fast_charger_present                     False
+   fast_charger_type                        <invalid>
+   ideal_battery_range                      218.59
+   managed_charging_active                  False
+   managed_charging_start_time              None
+   managed_charging_user_canceled           False
+   max_range_charge_counter                 0
+   motorized_charge_port                    True
+   not_enough_power_to_heat                 False
+   scheduled_charging_pending               False
+   scheduled_charging_start_time            None
+   time_to_full_charge                      2.0
+   trip_charging                            False
+   usable_battery_level                     68
+   user_charge_enable_request               None
+
+drive_state
+   gps_as_of                                1475340441
+   heading                                  159
+   latitude                                 # deleted for privacy purposes
+   longitude                                # deleted for privacy purposes
+   shift_state                              None
+   speed                                    None
+
+climate_state
+   driver_temp_setting                      19.8
+   fan_status                               0
+   inside_temp                              21.1
+   is_auto_conditioning_on                  False
+   is_front_defroster_on                    0
+   is_rear_defroster_on                     False
+   outside_temp                             12.0
+   passenger_temp_setting                   19.8
+   seat_heater_left                         0
+   seat_heater_rear_center                  0
+   seat_heater_rear_left                    0
+   seat_heater_rear_left_back               0
+   seat_heater_rear_right                   0
+   seat_heater_rear_right_back              0
+   seat_heater_right                        0
+   smart_preconditioning                    False
+
+gui_settings
+   gui_24_hour_time                         False
+   gui_charge_rate_units                    mi/hr
+   gui_distance_units                       mi/hr
+   gui_range_display                        Rated
+   gui_temperature_units                    F
+
+vehicle_state
+   api_version                              3
+   autopark_state                           unavailable
+   autopark_state_v2                        standby
+   autopark_style                           dead_man
+   calendar_supported                       True
+   car_type                                 x
+   car_version                              2.36.31
+   center_display_state                     0
+   dark_rims                                False
+   df                                       0
+   dr                                       0
+   exterior_color                           SteelGrey
+   ft                                       0
+   has_spoiler                              True
+   homelink_nearby                          True
+   last_autopark_error                      no_error
+   locked                                   True
+   notifications_supported                  True
+   odometer                                 10266.881817
+   parsed_calendar_supported                True
+   perf_config                              P1
+   pf                                       0
+   pr                                       0
+   rear_seat_heaters                        3
+   remote_start                             False
+   remote_start_supported                   True
+   rhd                                      False
+   roof_color                               None
+   rt                                       0
+   seat_type                                0
+   spoiler_type                             Active
+   sun_roof_installed                       0
+   sun_roof_percent_open                    None
+   sun_roof_state                           unknown
+   third_row_seats                          FuturisFoldFlat
+   valet_mode                               False
+   valet_pin_needed                         True
+   vehicle_name                             # Deleted for privacy purposes
+   wheel_type                               AeroTurbine20

@@ -1,5 +1,5 @@
-Nikola
-======
+# Nikola
+
 Nikola is a python application for monitoring and managing
 a Tesla connected automobile from an Amazon Alexa natural language device
 
@@ -10,8 +10,7 @@ Requires:
 * teslajson.py by Greg Glockner (on GitHub);
 * flask_ask by John Wheeler (on GitHub)
 
-Notes
-=====
+## Notes
 The Python program application.py contains the intent handlers required to
 accept an Alexa Intent, query and post to the Tesla API for a specific car,
 and return a text response to be spoken on Alexa devices such as the Echo and Dot.
@@ -39,3 +38,14 @@ The function DataDump() creates a file named tesladata.txt, which contains a
 complete dump of the data provided by the Tesla API.  An example of this file is
 provided in this repository.  (Note: location and vehicle name data is deleted
 for privacy reasons.)
+
+## Credits
+Much credit goes to [Tim Dorr](http://timdorr.com) for documenting the Tesla JSON API.
+Also to Greg Glockner for his teslajson.py approach to unlocking that API's power.
+
+## Disclaimer
+This software is provided as-is.  This software is not supported by or
+endorsed by Tesla Motors.  Tesla Motors does not publicly support the
+underlying JSON API, so this software may stop working at any time.  The
+author makes no guarantee to release an updated version to fix any
+incompatibilities.

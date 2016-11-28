@@ -373,6 +373,7 @@ def DataDump():
 
 # -------------------------------------------------------------------
 # Initiate the application for the hosting environment
+# This will probably vary for different hosting environments; this is for Cloud9
 if __name__ == "__main__":
     host = os.getenv('IP', '0.0.0.0')
     port = int(os.getenv('PORT', 8080))

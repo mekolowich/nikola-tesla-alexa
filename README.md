@@ -1,11 +1,11 @@
 NIKOLA -- A python application for monitoring and managing
 a Tesla connected automobile from an Amazon Alexa natural language device
 
-Authors: Michael Kolowich, Andrew Payne
+Authors: Michael Kolowich, Andrew Payne; 
 October/November, 2016
 
 Requires:
-teslajson.py by Greg Glockner (on GitHub)
+teslajson.py by Greg Glockner (on GitHub);
 flask_ask by John Wheeler (on GitHub)
 
 Notes:
@@ -21,14 +21,14 @@ Amazon developer account.
 
 The following need to be entered as Environment Variables because they contain
 private information:
-TESLA_USER: Tesla.com username for the Tesla automobile to be monitored and managed
-TESLA_PASSWORD: Tesla.com password
+TESLA_USER: Tesla.com username for the Tesla automobile to be monitored and managed;
+TESLA_PASSWORD: Tesla.com password;
 APP_ID: App ID for the Alexa app that you create.
 
 In addition, the application needs these additional environment variables:
-TEMPUNITS: Desired temperature units ("Fahrenheit" or "Celsius")
-TIMEZONE: Spoken name of the time zone (e.g. "Eastern Daylight")
-TIMEZONE_CORRECTOR: Hours offset from UCT or GMT (e.g. -4 for Eastern Daylight Time)
+TEMPUNITS: Desired temperature units ("Fahrenheit" or "Celsius");
+TIMEZONE: Spoken name of the time zone (e.g. "Eastern Daylight");
+TIMEZONE_CORRECTOR: Hours offset from UCT or GMT (e.g. -4 for Eastern Daylight Time);
 CHARGE_SPEED: Average charging speed for the location where charging most often
                 occurs (in miles added per hour)
 

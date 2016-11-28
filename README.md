@@ -1,14 +1,17 @@
-NIKOLA -- A python application for monitoring and managing
+Nikola
+======
+Nikola is a python application for monitoring and managing
 a Tesla connected automobile from an Amazon Alexa natural language device
 
-Authors: Michael Kolowich, Andrew Payne; 
+Authors: Michael Kolowich, Andrew Payne;
 October/November, 2016
 
 Requires:
-teslajson.py by Greg Glockner (on GitHub);
-flask_ask by John Wheeler (on GitHub)
+* teslajson.py by Greg Glockner (on GitHub);
+* flask_ask by John Wheeler (on GitHub)
 
-Notes:
+Notes
+=====
 The Python program application.py contains the intent handlers required to
 accept an Alexa Intent, query and post to the Tesla API for a specific car,
 and return a text response to be spoken on Alexa devices such as the Echo and Dot.
@@ -21,15 +24,15 @@ Amazon developer account.
 
 The following need to be entered as Environment Variables because they contain
 private information:
-TESLA_USER: Tesla.com username for the Tesla automobile to be monitored and managed;
-TESLA_PASSWORD: Tesla.com password;
-APP_ID: App ID for the Alexa app that you create.
+* TESLA_USER: Tesla.com username for the Tesla automobile to be monitored and managed;
+* TESLA_PASSWORD: Tesla.com password;
+* APP_ID: App ID for the Alexa app that you create.
 
 In addition, the application needs these additional environment variables:
-TEMPUNITS: Desired temperature units ("Fahrenheit" or "Celsius");
-TIMEZONE: Spoken name of the time zone (e.g. "Eastern Daylight");
-TIMEZONE_CORRECTOR: Hours offset from UCT or GMT (e.g. -4 for Eastern Daylight Time);
-CHARGE_SPEED: Average charging speed for the location where charging most often
+* TEMPUNITS: Desired temperature units ("Fahrenheit" or "Celsius");
+* TIMEZONE: Spoken name of the time zone (e.g. "Eastern Daylight");
+* TIMEZONE_CORRECTOR: Hours offset from UCT or GMT (e.g. -4 for Eastern Daylight Time);
+* CHARGE_SPEED: Average charging speed for the location where charging most often
                 occurs (in miles added per hour)
 
 The function DataDump() creates a file named tesladata.txt, which contains a

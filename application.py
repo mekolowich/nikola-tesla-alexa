@@ -340,19 +340,21 @@ def DataPrint():
 # "Dump the data on my car."
 @ask.intent('DataDump')
 def DataDump():
-    vehicle.wake.up()
+    vehicle.wake_up()
     # Delete the tesladata.txt file, then open it for writing
     os.remove("tesladata.txt")
     f = open("tesladata.txt", "w")
     for data_type in ('charge_state', 'drive_state', 'climate_state', 'gui_settings', 'vehicle_state'):
         data = vehicle.data_request(data_type)
         #Dumps to file the name of the data type
-        f.write(data_type)
+        f.write(data_type + "\n")
         # Dumps to file each key and value for the type of car data
         for (k, val) in sorted(data.items()):
-            f.write("   %-40s %s\n" % (k,val))
+            f.write("   %-40s %s" % (k,val))
             f.write("\n")
+        f.write("\n")
     f.close()
+    return statement("OK.  I have written your car's data to a file.")
 
 # Function in Process
 # Gets Car ready by charging via climate control

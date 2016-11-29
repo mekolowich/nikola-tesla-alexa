@@ -18,9 +18,14 @@ import teslajson
 import threading
 import time
 import datetime
+import googlemaps
+import geocoder
 
 # Alexa Skill credentials are stored separately as an environment variable
 APP_ID = os.environ['APP_ID']
+
+# Google Maps API Key is stored separately as an environment variable
+GOOGLE_API_KEY = os.environ['GOOGLE_API_KEY']
 
 # Hosting service looks for an 'application' callable by default.
 application = Flask(__name__)
@@ -32,6 +37,9 @@ TESLA_USER = os.environ['TESLA_USER']
 TESLA_PASSWORD = os.environ['TESLA_PASSWORD']
 tesla_connection = teslajson.Connection("TESLA_USER", "TESLA_PASSWORD")
 vehicle = tesla_connection.vehicles[0]
+
+# Google Maps API connection
+gmaps = googlemaps.Client(key=GOOGLE_API_KEY)
 
 # Get environment variables
 # Timezone and Corrector (hours from GMT/UCT):
@@ -120,6 +128,8 @@ def SpeakChargeTime():
 # Intent handlers
 # These are called by Alexa via flask_ask and return a string to be spoken
 
+#INTENTS FOR CHECKING STATUS OF CAR
+
 # "What is the charge level of my car?"
 @ask.intent('GetChargeLevel')
 def GetChargeLevel():
@@ -136,6 +146,20 @@ def GetOdometer():
     vehicle.wake_up()
     data = vehicle.data_request('vehicle_state')
     text = "Your odometer reading is %.1f miles." % data['odometer']
+    return statement(text)
+
+# "Where is my car?"
+@ask.intent('GetLocation')
+def GetLocation():
+    vehicle.wake_up()
+    data = vehicle.data_request('drive_state')
+    latitude = data['latitude']
+    longitude = data['longitude']
+    location = geocoder.google([latitude, longitude], method='reverse')
+    text = "Right now, your car is in %s " % location.city
+    text += "%s, at " % location.state # Need to convert state abbreviation
+    text += "%s " % location.housenumber
+    text += "%s." % location.street
     return statement(text)
 
 # "How far can I drive?"
@@ -167,6 +191,20 @@ def GetLocked():
     else:
         text += "unlocked "
     text += "at the moment."
+    return statement(text)
+
+# "Is my car plugged in?"
+@ask.intent('GetPluggedIn')
+def GetPluggedIn():
+    data = vehicle.data_request('charge_state')
+    if data['charge_port_door_open']:
+        text = "Your car is plugged in, "
+        if (data['charge_state'] == "Charging"):
+            text += "and it's charging."
+        else:
+            text += "but it's not charging."
+    else:
+        text = "No, your car is not plugged in right now."
     return statement(text)
 
 # "What is the status of my car?"
@@ -214,19 +252,6 @@ def GetStatusQuick():
     text += "Odometer %d miles." % data_vehicle['odometer']
     return statement(text)
 
-# "Is my car locked?"
-@ask.intent('UnlockCar')
-def UnlockCar():
-    vehicle.wake_up()
-    data = vehicle.data_request('vehicle_state')
-    text = "I've unlocked your car." if data['locked'] else "Your car is already unlocked.  I kept it that way."
-    return statement(text)
-
-# "Lock my car."
-def LockDoor():
-    vehicle.wake_up()
-    vehicle.command('door_unlock')
-
 # "Unlock my car for x minutes."
 @ask.intent('UnlockCarDuration', convert={'mins' : int})
 def UnlockCarDuration(mins):
@@ -238,11 +263,16 @@ def UnlockCarDuration(mins):
     if data['locked']:
         vehicle.command('door_unlock')
         text = "I've unlocked your car, and it will stay unlocked for %d minutes, until %s." % (mins, SpeakTime(end_time))
-        t = threading.Timer(int(duration_seconds), LockDoor)
+        t = threading.Timer(int(duration_seconds), LockCarAction()) # Lock the car back up after 'minutes'
         t.start()
     else:
         text += "Your car is already unlocked.  I kept it that way."
     return statement(text)
+
+def LockCarAction():
+    vehicle.wake_up()
+    vehicle.command('door_lock')
+    return
 
 # "Lock my car."
 @ask.intent('LockCar')
@@ -254,6 +284,18 @@ def LockCar():
     else:
         vehicle.command('door_lock')
         text = "I've locked your car."
+    return statement(text)
+
+# "Unlock my car."
+@ask.intent('UnlockCar')
+def UnlockCar():
+    vehicle.wake_up()
+    data = vehicle.data_request('vehicle_state')
+    if not data['locked']:
+        text = "Your car is already unlocked.  I kept it that way."
+    else:
+        vehicle.command('door_unlock')
+        text = "I've unlocked your car."
     return statement(text)
 
 # "Stop charging my car."
@@ -290,20 +332,6 @@ def ChargeTime():
     text = SpeakChargeTime()
     return statement(text)
 
-# "Is my car plugged in?"
-@ask.intent('GetPluggedIn')
-def GetPluggedIn():
-    data = vehicle.data_request('charge_state')
-    if data['charge_port_door_open']:
-        text = "Your car is plugged in, "
-        if (data['charge_state'] == "Charging"):
-            text += "and it's charging."
-        else:
-            text += "but it's not charging."
-    else:
-        text = "No, your car is not plugged in right now."
-    return statement(text)
-
 # "Set the charge level to x percent on my car."
 @ask.intent('ChargeSet', convert={'limit' : int})
 def ChargeSet(limit):
@@ -323,6 +351,8 @@ def ChargeSet(limit):
         text += "Please note, however, that your battery is already charged higher than that level, at %d percent." %data['battery_level']
     return statement(text)
 
+# INTENTS FOR SHOWING OR STORING THE COMPLETE API DATA FOR THE CAR
+
 # "Print out the data on my car"
 @ask.intent('DataPrint')
 def DataPrint():
@@ -331,7 +361,7 @@ def DataPrint():
     for data_type in ('charge_state', 'drive_state', 'climate_state', 'gui_settings', 'vehicle_state'):
         data = vehicle.data_request(data_type)
         # Prints the name of the data type
-        print data_type
+        print (data_type)
         # Prints to the console each key and value for the type of car data
         for (k, val) in sorted(data.items()):
             print "   %-40s %s" % (k,val)

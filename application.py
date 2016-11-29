@@ -24,9 +24,6 @@ import geocoder
 # Alexa Skill credentials are stored separately as an environment variable
 APP_ID = os.environ['APP_ID']
 
-# Google Maps API Key is stored separately as an environment variable
-GOOGLE_API_KEY = os.environ['GOOGLE_API_KEY']
-
 # Hosting service looks for an 'application' callable by default.
 application = Flask(__name__)
 ask = Ask(application, '/')
@@ -38,15 +35,76 @@ TESLA_PASSWORD = os.environ['TESLA_PASSWORD']
 tesla_connection = teslajson.Connection("TESLA_USER", "TESLA_PASSWORD")
 vehicle = tesla_connection.vehicles[0]
 
-# Google Maps API connection
-gmaps = googlemaps.Client(key=GOOGLE_API_KEY)
-
 # Get environment variables
 # Timezone and Corrector (hours from GMT/UCT):
 timezone_corrector = int(os.environ['TIMEZONE_CORRECTOR'])
 timezone = os.environ['TIMEZONE']
 #Unit Scales (temperature, distance, etc.)
 tempunits = str(os.environ['TEMPUNITS'])
+
+states = {
+        'AK': 'Alaska',
+        'AL': 'Alabama',
+        'AR': 'Arkansas',
+        'AS': 'American Samoa',
+        'AZ': 'Arizona',
+        'CA': 'California',
+        'CO': 'Colorado',
+        'CT': 'Connecticut',
+        'DC': 'District of Columbia',
+        'DE': 'Delaware',
+        'FL': 'Florida',
+        'GA': 'Georgia',
+        'GU': 'Guam',
+        'HI': 'Hawaii',
+        'IA': 'Iowa',
+        'ID': 'Idaho',
+        'IL': 'Illinois',
+        'IN': 'Indiana',
+        'KS': 'Kansas',
+        'KY': 'Kentucky',
+        'LA': 'Louisiana',
+        'MA': 'Massachusetts',
+        'MD': 'Maryland',
+        'ME': 'Maine',
+        'MI': 'Michigan',
+        'MN': 'Minnesota',
+        'MO': 'Missouri',
+        'MP': 'Northern Mariana Islands',
+        'MS': 'Mississippi',
+        'MT': 'Montana',
+        'NA': 'National',
+        'NC': 'North Carolina',
+        'ND': 'North Dakota',
+        'NE': 'Nebraska',
+        'NH': 'New Hampshire',
+        'NJ': 'New Jersey',
+        'NM': 'New Mexico',
+        'NV': 'Nevada',
+        'NY': 'New York',
+        'OH': 'Ohio',
+        'OK': 'Oklahoma',
+        'OR': 'Oregon',
+        'PA': 'Pennsylvania',
+        'PR': 'Puerto Rico',
+        'RI': 'Rhode Island',
+        'SC': 'South Carolina',
+        'SD': 'South Dakota',
+        'TN': 'Tennessee',
+        'TX': 'Texas',
+        'UT': 'Utah',
+        'VA': 'Virginia',
+        'VI': 'Virgin Islands',
+        'VT': 'Vermont',
+        'WA': 'Washington',
+        'WI': 'Wisconsin',
+        'WV': 'West Virginia',
+        'WY': 'Wyoming'
+}
+
+def IdentifyStateName(abbr):
+    state_name = states[abbr]
+    return state_name
 
 # Returns the spoken time of day in the current time zone
 def SpeakTime(time_to_speak):
@@ -149,6 +207,7 @@ def GetOdometer():
     return statement(text)
 
 # "Where is my car?"
+# Right now, this works on USA addresses only
 @ask.intent('GetLocation')
 def GetLocation():
     vehicle.wake_up()
@@ -157,7 +216,7 @@ def GetLocation():
     longitude = data['longitude']
     location = geocoder.google([latitude, longitude], method='reverse')
     text = "Right now, your car is in %s " % location.city
-    text += "%s, at " % location.state # Need to convert state abbreviation
+    text += "%s, at " % IdentifyStateName(location.state)
     text += "%s " % location.housenumber
     text += "%s." % location.street
     return statement(text)
@@ -251,6 +310,8 @@ def GetStatusQuick():
     text += "and inside %d degrees. " % inside_temp
     text += "Odometer %d miles." % data_vehicle['odometer']
     return statement(text)
+
+# INTENTS THAT SEND COMMANDS TO THE CAR
 
 # "Unlock my car for x minutes."
 @ask.intent('UnlockCarDuration', convert={'mins' : int})

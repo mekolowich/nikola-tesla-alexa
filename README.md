@@ -8,7 +8,8 @@ October/November, 2016
 
 Requires:
 * teslajson.py by Greg Glockner (on GitHub);
-* flask_ask by John Wheeler (on GitHub)
+* flask_ask by John Wheeler (on GitHub);
+* geocoder by Denis Carriere (on GitHub)
 
 ## Notes
 The Python program application.py contains the intent handlers required to

@@ -35,6 +35,12 @@
 
       ]
     },
+    	{
+      "intent": "GetLocation",
+      "slots": [
+
+      ]
+    },
 	{
       "intent": "GetStatus",
       "slots": [

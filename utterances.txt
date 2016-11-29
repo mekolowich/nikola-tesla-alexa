@@ -43,6 +43,8 @@ GetTemperatures Is my car cold
 GetLocked If my car is locked
 GetLocked Whether my car is locked
 GetLocked Is my car locked
+GetLocked If my car is unlocked
+GetLocked Is my car unlocked
 GetStatus Whats the status of my car
 GetStatus What is the status of my car
 GetStatus What the status of my car is
@@ -88,3 +90,6 @@ DataDump To dump my car's data to a file
 DataDump To dump my car's data
 DataDump To dump the API data on my car to a file
 DataDump To dump the API data on my car
+GetLocation Where's my car
+GetLocation Where is my car
+GetLocation What is the location of my car

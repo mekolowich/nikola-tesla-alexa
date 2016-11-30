@@ -32,8 +32,7 @@ In addition, the application needs these additional environment variables:
 * TEMPUNITS: Desired temperature units ("Fahrenheit" or "Celsius");
 * TIMEZONE: Spoken name of the time zone (e.g. "Eastern Daylight");
 * TIMEZONE_CORRECTOR: Hours offset from UCT or GMT (e.g. -4 for Eastern Daylight Time);
-* CHARGE_SPEED: Average charging speed for the location where charging most often
-                occurs (in miles added per hour)
+* CHARGE_SPEED: Average charging speed for the location where charging most often occurs (in miles added per hour)
 
 The function DataDump() creates a file named tesladata.txt, which contains a
 complete dump of the data provided by the Tesla API.  An example of this file is

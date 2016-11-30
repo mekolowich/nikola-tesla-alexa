@@ -93,3 +93,22 @@ DataDump To dump the API data on my car
 GetLocation Where's my car
 GetLocation Where is my car
 GetLocation What is the location of my car
+ClimateStart Warm my car up
+ClimateStart Preheat my car
+ClimateStart Warm up my car
+ClimateStart Precool my car
+ClimateStart Cool my car down
+ClimateStart Cool my car
+ClimateStart Start the air conditioning
+ClimateStart Start the heater
+ClimateStart Turn on the heater
+ClimateStart Turn on the air conditioner
+ClimateStart Turn on the climate system
+ClimateStop Turn off the heater
+ClimateStop Turn off the air conditioner
+ClimateStop Stop warming my car
+ClimateStop Stop cooling my car
+ClimateStop Turn off the climate system
+ClimateStop Stop the heater
+ClimateStop Stop the air conditioner
+ClimateStop Stop the A.C.

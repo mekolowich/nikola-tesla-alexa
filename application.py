@@ -416,6 +416,42 @@ def ChargeSet(limit):
         text += "Please note, however, that your battery is already charged higher than that level, at %d percent." %data['battery_level']
     return statement(text)
 
+# "Preheat my car"
+@ask.intent('ClimateStart')
+def ClimateStart():
+    vehicle.wake_up()
+    data = vehicle.data_request('climate_state')
+    inside_temp = 0.0
+    set_temp = 0.0
+    if data['is_climate_on']:
+        return statement("Your climate system is already running.  No need for further action.")
+    else:
+        inside_temp = ConvertTemp(data['inside_temp'], tempunits)
+        set_temp = ConvertTemp(data['driver_temp_setting'], tempunits)
+        if abs(set_temp - inside_temp) < 5:
+            text = "The inside temperature of %s degrees is already pretty close to ideal." % int(inside_temp)
+            text += "So I didn't turn the climate system on, in the interest of saving energy."
+        else:
+            vehicle.command('auto_conditioning_start')
+            if set_temp > inside_temp:
+                heat_cool = "heating"
+            else:
+                heat_cool = "cooling"
+            text = "OK, I have started %s your car " % heat_cool
+            text += "to %s degrees." % int(set_temp)
+    return statement(text)
+
+# "Stop warming my car"
+@ask.intent('ClimateStop')
+def ClimateStop():
+    vehicle.wake_up()
+    data = vehicle.data_request('climate_state')
+    if not data['is_climate_on']:
+        return statement("Your climate system is not running, so there's nothing to stop.")
+    vehicle.command('auto_conditioning_stop')
+    text = "OK, I've stopped the climate system."
+    return statement(text)
+
 # INTENTS FOR SHOWING OR STORING THE COMPLETE API DATA FOR THE CAR
 
 # "Print out the data on my car"

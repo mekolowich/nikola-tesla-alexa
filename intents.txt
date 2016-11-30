@@ -78,6 +78,18 @@
       ]
     },
         {
+      "intent": "ClimateStop",
+      "slots": [
+
+      ]
+    },
+    {
+      "intent": "ClimateStart",
+      "slots": [
+
+      ]
+    },
+        {
       "intent": "DataPrint",
       "slots": [
 

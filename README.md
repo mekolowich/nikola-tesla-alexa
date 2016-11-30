@@ -40,6 +40,14 @@ complete dump of the data provided by the Tesla API.  An example of this file is
 provided in this repository.  (Note: location and vehicle name data is deleted
 for privacy reasons.)
 
+## Key Files in this repository
+Here are the most important files and what they do:
+* <b>application.py</b> is the main Python program to handle the incoming Alexa intents, query the Tesla API, issue commands through the API, formulate and return responses to be spoken by an Alexa device;
+* <b>teslajson.py</b> is the third-party application, written by Greg Glockner, that actually handles the communications to and from the Tesla through the API;
+* <b>intents.txt</b> is the most current schema of intents, in JSON format, that defines the inquiries and commands that Alexa can pass to Nikola.  This can be copied and pasted into the "Intent Schema" section of the "Interaction Model" tab for a Nikola Skill that can be defined and managed in the Amazon Developer Console.
+* <b>utterances</b> is a list of "Sample Utterances" that Alexa uses to decide which intent to send to the application.  Like the Intent Schema, this can be copied and pasted into the "Sample Utterances" section of the Interaction Model for an Alexa Skill;
+* <b>tesladata.txt</b> is, for reference purposes, a dump of API data from a Tesla Model X running v8.0 of the Tesla firmware as of November, 2016.  This list may be generated for any Tesla automobile at any time by invoking the "DataDump" intent by saying: "Alexa, ask Nikola to dump my car's data to a file."
+
 ## Credits
 Much credit goes to [Tim Dorr](http://timdorr.com) for documenting the Tesla JSON API.
 Also to Greg Glockner for his teslajson.py approach to unlocking that API's power.

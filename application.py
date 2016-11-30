@@ -18,7 +18,6 @@ import teslajson
 import threading
 import time
 import datetime
-import googlemaps
 import geocoder
 
 # Alexa Skill credentials are stored separately as an environment variable
@@ -207,7 +206,6 @@ def GetOdometer():
     return statement(text)
 
 # "Where is my car?"
-# Right now, this works on USA addresses only
 @ask.intent('GetLocation')
 def GetLocation():
     vehicle.wake_up()
@@ -216,7 +214,10 @@ def GetLocation():
     longitude = data['longitude']
     location = geocoder.google([latitude, longitude], method='reverse')
     text = "Right now, your car is in %s " % location.city
-    text += "%s, at " % IdentifyStateName(location.state)
+    if location.country == "US":
+        text += "%s, at " % IdentifyStateName(location.state)
+    else:
+        text += "%s, at " % location.country
     text += "%s " % location.housenumber
     text += "%s." % location.street
     return statement(text)

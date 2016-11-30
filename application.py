@@ -136,6 +136,12 @@ def SpeakTime(time_to_speak):
     spoken_time += timezone + " Time, " # Add time zone to spoken time string
     return spoken_time
 
+# Convert Temperature to Fahrenheit if necessary
+def ConvertTemp(temperature, scale):
+    if scale == "Fahrenheit":  # Convert to Fahrenheit if necessary
+        temperature = (temperature * 1.8) + 32
+    return temperature
+
 # Function to get the inside and outside temperatures and convert to Fahrenheit if necessary
 def FetchTemps(scale):
     global inside_temp, outside_temp
@@ -143,11 +149,8 @@ def FetchTemps(scale):
     data = vehicle.data_request('climate_state')
     inside_temp = 0.0
     outside_temp = 0.0
-    inside_temp= data['inside_temp'] # Temps come back from Tesla in Celsius
-    outside_temp= data['outside_temp']
-    if scale == "Fahrenheit":  # Convert to Fahrenheit if necessary
-        inside_temp = (inside_temp * 1.8) + 32
-        outside_temp = (outside_temp * 1.8) + 32
+    inside_temp= ConvertTemp(data['inside_temp'], scale)
+    outside_temp= ConvertTemp(data['outside_temp'], scale)
     return inside_temp, outside_temp
 
 # Function to convert decimal hours to hours and minutes in spoken text

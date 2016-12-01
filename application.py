@@ -429,8 +429,8 @@ def ClimateStart():
         inside_temp = ConvertTemp(data['inside_temp'], tempunits)
         set_temp = ConvertTemp(data['driver_temp_setting'], tempunits)
         if abs(set_temp - inside_temp) < 5:
-            text = "The inside temperature of %s degrees is already pretty close to ideal." % int(inside_temp)
-            text += "So I didn't turn the climate system on, in the interest of saving energy."
+            text = "The inside temperature of %s degrees is already pretty close to ideal," % int(inside_temp)
+            text += "so I didn't turn the climate system on, in the interest of saving energy."
         else:
             vehicle.command('auto_conditioning_start')
             if set_temp > inside_temp:

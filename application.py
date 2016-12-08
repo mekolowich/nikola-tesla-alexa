@@ -15,10 +15,12 @@ import os
 from flask import Flask, request, jsonify
 from flask_ask import Ask, statement
 import teslajson
-import threading
+from threading import Timer
 import time
 import datetime
 import geocoder
+from dateutil.parser import parse
+from isodate import parse_time
 
 # Alexa Skill credentials are stored separately as an environment variable
 APP_ID = os.environ['APP_ID']
@@ -328,10 +330,12 @@ def UnlockCarDuration(mins):
     if data['locked']:
         vehicle.command('door_unlock')
         text = "I've unlocked your car, and it will stay unlocked for %d minutes, until %s." % (mins, SpeakTime(end_time))
-        t = threading.Timer(int(duration_seconds), LockCarAction()) # Lock the car back up after 'minutes'
+        data = vehicle.data_request('vehicle_state')
+        print data['locked'] # debugging - to see if car has been unlocked
+        t = Timer(duration_seconds, LockCarAction()) # Lock the car back up after 'minutes'
         t.start()
     else:
-        text += "Your car is already unlocked.  I kept it that way."
+        text = "Your car is already unlocked.  I kept it that way."
     return statement(text)
 
 def LockCarAction():
@@ -361,6 +365,42 @@ def UnlockCar():
     else:
         vehicle.command('door_unlock')
         text = "I've unlocked your car."
+    return statement(text)
+
+# "Unlock my car until 9:00 AM."
+@ask.intent('UnlockCarTime', convert={'lock_time' : str})
+def UnlockCarTime(lock_time):
+    target = datetime.datetime.now()
+    lock_time_conv = parse(lock_time)
+    target_hour = lock_time_conv.hour
+    target_minute = lock_time_conv.minute
+    now = datetime.datetime.now()
+    now_hour = now.hour + timezone_corrector
+    if now_hour < 0:
+        now_hour = now_hour + 24
+    now_minute = now.minute
+    hours_diff = target_hour - now_hour
+    minutes_diff = target_minute - now_minute
+    if minutes_diff < 0:
+        minutes_diff = minutes_diff + 60
+        add_hour = -1
+    hours_diff = hours_diff + add_hour
+    if hours_diff < 0:
+        hours_diff = hours_diff + 24
+        tomorrow = True
+    unlock_minutes = (hours_diff * 60) + minutes_diff
+    vehicle.wake_up()
+    data = vehicle.data_request('vehicle_state')
+    duration_seconds = unlock_minutes * 60
+    now = datetime.datetime.now()
+    end_time = now + datetime.timedelta(0,(unlock_minutes * 60))
+    if data['locked']:
+        vehicle.command('door_unlock')
+        text = "I've unlocked your car, and it will stay unlocked for %d minutes, until %s." % (unlock_minutes, SpeakTime(end_time))
+        t = Timer(duration_seconds, LockCarAction()) # Lock the car back up after 'minutes'
+        t.start()
+    else:
+        text = "Your car is already unlocked.  I kept it that way."
     return statement(text)
 
 # "Stop charging my car."
@@ -486,21 +526,6 @@ def DataDump():
         f.write("\n")
     f.close()
     return statement("OK.  I have written your car's data to a file.")
-
-# Function in Process
-# Gets Car ready by charging via climate control
-# drive_type is long or normal (this sets target charge for 100% and 90%, respectively)
-#@ask.intent('GetCarReady', convert={'ready_time' : ##WhatUnitsHere?##, }, drive_type)
-#def GetCarReady(ready_time):
-#    vehicle.wake_up()
-#    data_vehicle = vehicle.data_request('vehicle_state')
-#    data = vehicle.data_request('charge_state')
-    # Determine how long it will take to charge (100% if long drive)
-
-#    EstimateChargeTime()
-    # Is there enough time?  Inform the user if not
-    # Set up a task to start charging at
-#    return statement(text)
 
 # -------------------------------------------------------------------
 # Initiate the application for the hosting environment

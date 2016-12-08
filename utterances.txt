@@ -112,3 +112,5 @@ ClimateStop Turn off the climate system
 ClimateStop Stop the heater
 ClimateStop Stop the air conditioner
 ClimateStop Stop the A.C.
+UnlockCarTime Unlock my car until {lock_time}
+UnlockCarTime Unlock the car till {lock_time}

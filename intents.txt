@@ -102,6 +102,15 @@
       ]
     },
     {
+      "intent": "UnlockCarTime",
+      "slots": [
+        {
+        "name": "lock_time",
+        "type": "AMAZON.TIME"
+        }
+      ]
+    },
+        {
       "intent": "ChargeSet",
       "slots": [
         {

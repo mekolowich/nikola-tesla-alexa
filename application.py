@@ -46,6 +46,7 @@ tempunits = str(os.environ['TEMPUNITS'])
 #Global State Variables
 unlock_timer_state = "Off" # Start with unlock_timer_state "Off"
 unlock_end_time = datetime.datetime.now() #initialize the UnlockEndTime global
+unlock_timer = Timer(1,"")
 t = Timer(1, "")
 
 states = {
@@ -324,34 +325,36 @@ def GetStatusQuick():
 
 # INTENTS THAT SEND COMMANDS TO THE CAR
 
-# "Unlock my car for x minutes."
-@ask.intent('UnlockCarDuration', convert={'mins' : int})
-def UnlockCarDuration(mins):
-    global unlock_timer_state, unlock_end_time, t
+# "Unlock my car for 10 minutes."
+@ask.intent('UnlockCarDuration', convert={'unlock_duration' : 'timedelta'}) # convert AMAZON.DURATION to a python timedelta object
+def UnlockCarDuration(unlock_duration):
+    global unlock_timer_state, unlock_end_time, unlock_timer
     vehicle.wake_up()
-    if unlock_timer_state == "On": #If an unlock timer is already in effect, cancel it
-        t.cancel()
-        unlock_timer_state = "Off"
     data = vehicle.data_request('vehicle_state')
-    duration_seconds = mins * 60
     now = datetime.datetime.now()
-    end_time = now + datetime.timedelta(0,(mins * 60))
+    end_time = now + unlock_duration
+    print "Before:"
+    print "Car locked is " + str(data['locked'])
+    print "Unlock timer is " + unlock_timer_state
     if data['locked']:
         vehicle.command('door_unlock')
         unlock_timer_state = "On"
         unlock_end_time = end_time
-        text = "I've unlocked your car, and it will stay unlocked for %d minutes, until %s." % (mins, SpeakTime(end_time))
+        text = "I've unlocked your car, and it will stay unlocked for %d minutes, until %s." % (int(unlock_duration.seconds/60), SpeakTime(end_time))
         data = vehicle.data_request('vehicle_state')
-        t = Timer(duration_seconds, LockCarAction) # Lock the car back up after 'minutes'
-        t.start()
+        unlock_timer = Timer(unlock_duration.seconds, LockCarAction) # Lock the car back up after 'minutes'
+        unlock_timer.start()
     elif unlock_timer_state == "On":
-        t.cancel()
-        t = Timer(duration_seconds, LockCarAction)
-        t.start()
+        unlock_timer.cancel()
+        unlock_timer = Timer(unlock_duration.seconds, LockCarAction)
+        unlock_timer.start()
         text = "Your car was already on an unlock timer, but I changed it to stay unlocked "
         text += "until %s." % SpeakTime(end_time)
     else:
         text = "Your car is already unlocked.  I kept it that way."
+    print "After:"
+    print "Car locked is " + str(data['locked'])
+    print "Unlock timer is " + unlock_timer_state
     return statement(text)
 
 def LockCarAction():
@@ -370,6 +373,8 @@ def LockCar():
         vehicle.command('door_lock')
         text = "I've locked your car."
         UnlockTimerOn = False
+    # Cancel any current unlock timers
+    unlock_timer_state = "Off"
     return statement(text)
 
 # "Unlock my car."

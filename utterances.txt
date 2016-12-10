@@ -62,10 +62,10 @@ UnlockCar To unlock the car
 UnlockCar To unlock my car
 UnlockCar Unlock my car
 UnlockCar Unlock the car
-UnlockCarDuration To unlock the car for {mins} minutes
-UnlockCarDuration To unlock my car for {mins} minutes
-UnlockCarDuration Unlock my car for {mins} minutes
-UnlockCarDuration Unlock the car for {mins} minutes
+UnlockCarDuration To unlock the car for {unlock_duration}
+UnlockCarDuration To unlock my car for {unlock_duration}
+UnlockCarDuration Unlock my car for {unlock_duration}
+UnlockCarDuration Unlock the car for {unlock_duration}
 LockCar To lock the car
 LockCar To lock my car
 LockCar Lock my car
@@ -77,8 +77,12 @@ ChargeStop To turn the charger off
 ChargeStop To stop charging my car
 ChargeStart To charge my car
 ChargeStart To start charging
+ChargeStart To start charging my car
 ChargeStart To turn the charger on
 ChargeStart To charge the car
+ChargeStartTime To start charging my car at {start_time}
+ChargeStartTime To charge the car starting at {start_time}
+ChargeStartTime To turn the charger on at {start_time}
 ChargeSet To set my charge limit to {limit} percent
 ChargeSet To limit my charge to {limit} percent
 ChargeSet To stop charging at {limit} percent

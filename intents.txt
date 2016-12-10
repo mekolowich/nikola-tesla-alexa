@@ -77,6 +77,16 @@
 
       ]
     },
+            {
+      "intent": "ChargeStartTime",
+      "slots": [
+        {
+        "name": "start_time",
+        "type": "AMAZON.TIME"
+        }
+      ]
+    },
+
         {
       "intent": "ClimateStop",
       "slots": [
@@ -123,8 +133,8 @@
       "intent": "UnlockCarDuration",
       "slots": [
         {
-        "name": "mins",
-        "type": "AMAZON.NUMBER"
+        "name": "unlock_duration",
+        "type": "AMAZON.DURATION"
         }
       ]
     }

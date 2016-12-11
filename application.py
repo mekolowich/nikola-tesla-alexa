@@ -3,7 +3,7 @@ NIKOLA -- A python application for monitoring and managing
 a Tesla connected automobile from an Amazon Alexa natural language device
 
 Authors: Michael Kolowich, Andrew Payne
-October/November, 2016
+October-December, 2016
 
 Requires:
 teslajson.py by Greg Glockner (on GitHub)
@@ -124,6 +124,9 @@ def SpeakTime(time_to_speak):
         AM_PM = "AM"
     elif tz_adj_hour > 12: # Handles cases where adjusted time is afternoon/evening
         spoken_hour = tz_adj_hour - 12
+        AM_PM = "PM"
+    elif tz_adj_hour == 12: # Handles cases where adjusted time is noon
+        spoken_hour = tz_adj_hour
         AM_PM = "PM"
     else:
         spoken_hour = tz_adj_hour # Handles cases where adjusted time is morning
@@ -333,14 +336,11 @@ def UnlockCarDuration(unlock_duration):
     data = vehicle.data_request('vehicle_state')
     now = datetime.now()
     end_time = now + unlock_duration
-    print "Before: "
-    print "Car locked is " + str(data['locked'])
-    print "Unlock timer is " + unlock_timer_state
     if data['locked']:
         vehicle.command('door_unlock')
         unlock_timer_state = "On"
         unlock_end_time = end_time
-        text = "I've unlocked your car, and it will stay unlocked for %d minutes, until %s." % (int(unlock_duration.seconds/60), SpeakTime(end_time))
+        text = "I've unlocked your car, and it will stay unlocked for %s, until %s." % (SpeakDurationHM(unlock_duration.seconds/3600), SpeakTime(end_time))
         data = vehicle.data_request('vehicle_state')
         unlock_timer = Timer(unlock_duration.seconds, LockCarAction) # Lock the car back up after 'minutes'
         unlock_timer.start()
@@ -352,9 +352,6 @@ def UnlockCarDuration(unlock_duration):
         text += "until %s." % SpeakTime(end_time)
     else:
         text = "Your car is already unlocked.  I kept it that way."
-    print "After:"
-    print "Car locked is " + str(data['locked'])
-    print "Unlock timer is " + unlock_timer_state
     return statement(text)
 
 def LockCarAction():
@@ -407,7 +404,7 @@ def UnlockCarTime(lock_time):
         vehicle.command('door_unlock')
         unlock_timer_state = "On"
         unlock_end_time = end_time
-        text = "I've unlocked your car, and it will stay unlocked for %d minutes, until %s." % (int(unlock_duration.seconds/60), SpeakTime(end_time))
+        text = "I've unlocked your car, and it will stay unlocked for %s, until %s." % (SpeakDurationHM(unlock_duration.seconds/3600), SpeakTime(end_time))
         data = vehicle.data_request('vehicle_state')
         unlock_timer = Timer(unlock_duration.seconds, LockCarAction) # Lock the car back up after 'minutes'
         unlock_timer.start()

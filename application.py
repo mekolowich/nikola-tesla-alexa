@@ -17,7 +17,7 @@ from flask_ask import Ask, statement
 import teslajson
 from threading import Timer
 import time
-import datetime
+from datetime import *
 import geocoder
 from dateutil.parser import parse
 from isodate import parse_time
@@ -45,7 +45,7 @@ tempunits = str(os.environ['TEMPUNITS'])
 
 #Global State Variables
 unlock_timer_state = "Off" # Start with unlock_timer_state "Off"
-unlock_end_time = datetime.datetime.now() #initialize the UnlockEndTime global
+unlock_end_time = datetime.now() #initialize the UnlockEndTime global
 unlock_timer = Timer(1,"")
 t = Timer(1, "")
 
@@ -185,8 +185,8 @@ def SpeakChargeTime():
     spoken_charge_time = ""
     if (data['charging_state'] == "Charging"):
         charge_minutes = int(data['time_to_full_charge'] * 60)
-        now = datetime.datetime.now()
-        charge_end_time = now + datetime.timedelta(0,(charge_minutes * 60))
+        now = datetime.now()
+        charge_end_time = now + timedelta(0,(charge_minutes * 60))
         spoken_charge_time = "Your car is currently charging to a maximum of %d percent. " %data['charge_limit_soc']
         spoken_charge_time += "It should be finished charging in about %s, which would make it ready around " %SpeakDurationHM(data['time_to_full_charge'])
         spoken_charge_time += "%s." %SpeakTime(charge_end_time)
@@ -285,7 +285,7 @@ def GetStatus():
     data_vehicle = vehicle.data_request('vehicle_state')
     data_charge = vehicle.data_request ('charge_state')
     FetchTemps(tempunits)
-    now = datetime.datetime.now()
+    now = datetime.now()
     text = "As of "
     text += SpeakTime(now)
     text += "your charge level is %d percent. " % data_charge['battery_level']
@@ -331,9 +331,9 @@ def UnlockCarDuration(unlock_duration):
     global unlock_timer_state, unlock_end_time, unlock_timer
     vehicle.wake_up()
     data = vehicle.data_request('vehicle_state')
-    now = datetime.datetime.now()
+    now = datetime.now()
     end_time = now + unlock_duration
-    print "Before:"
+    print "Before: "
     print "Car locked is " + str(data['locked'])
     print "Unlock timer is " + unlock_timer_state
     if data['locked']:
@@ -390,41 +390,33 @@ def UnlockCar():
     return statement(text)
 
 # "Unlock my car until 9:00 AM."
-@ask.intent('UnlockCarTime', convert={'lock_time' : str})
+@ask.intent('UnlockCarTime', convert={'lock_time' : 'time'})
 def UnlockCarTime(lock_time):
-    global unlock_timer_state, unlock_timer, t
-    target = datetime.datetime.now()
-    lock_time_conv = parse(lock_time)
-    target_hour = lock_time_conv.hour
-    target_minute = lock_time_conv.minute
-    add_hour = 0
-    now = datetime.datetime.now()
-    now_hour = now.hour + timezone_corrector
-    if now_hour < 0:
-        now_hour = now_hour + 24
-    now_minute = now.minute
-    hours_diff = target_hour - now_hour
-    minutes_diff = target_minute - now_minute
-    if minutes_diff < 0:
-        minutes_diff = minutes_diff + 60
-        add_hour = -1
-    hours_diff = hours_diff + add_hour
-    if hours_diff < 0:
-        hours_diff = hours_diff + 24
-        tomorrow = True
-    unlock_minutes = (hours_diff * 60) + minutes_diff
+    global unlock_timer_state, unlock_timer, unlock_timer
     vehicle.wake_up()
     data = vehicle.data_request('vehicle_state')
-    duration_seconds = unlock_minutes * 60
-    now = datetime.datetime.now()
-    end_time = now + datetime.timedelta(0,(unlock_minutes * 60))
+    lock_time = datetime.combine(date.today(),lock_time)
+    now = datetime.now()
+    now_local = now + timedelta(hours=timezone_corrector)
+    if lock_time > now_local:
+        unlock_duration = lock_time - now_local
+    else:
+        unlock_duration = lock_time + timedelta(hours=24) - now_local
+    end_time = now + unlock_duration
     if data['locked']:
         vehicle.command('door_unlock')
         unlock_timer_state = "On"
-        unlock_timer = lock_time
-        text = "I've unlocked your car, and it will stay unlocked for %d minutes, until %s." % (unlock_minutes, SpeakTime(end_time))
-        t = Timer(duration_seconds, LockCarAction) # Lock the car back up after 'minutes'
-        t.start()
+        unlock_end_time = end_time
+        text = "I've unlocked your car, and it will stay unlocked for %d minutes, until %s." % (int(unlock_duration.seconds/60), SpeakTime(end_time))
+        data = vehicle.data_request('vehicle_state')
+        unlock_timer = Timer(unlock_duration.seconds, LockCarAction) # Lock the car back up after 'minutes'
+        unlock_timer.start()
+    elif unlock_timer_state == "On":
+        unlock_timer.cancel()
+        unlock_timer = Timer(unlock_duration.seconds, LockCarAction)
+        unlock_timer.start()
+        text = "Your car was already on an unlock timer, but I changed it to stay unlocked "
+        text += "until %s." % SpeakTime(end_time)
     else:
         text = "Your car is already unlocked.  I kept it that way."
     return statement(text)

@@ -36,17 +36,13 @@ TESLA_PASSWORD = os.environ['TESLA_PASSWORD']
 tesla_connection = teslajson.Connection("TESLA_USER", "TESLA_PASSWORD")
 vehicle = tesla_connection.vehicles[0]
 
-# Get environment variables
-# Timezone and Corrector (hours from GMT/UCT):
-timezone_corrector = int(os.environ['TIMEZONE_CORRECTOR'])
-timezone = os.environ['TIMEZONE']
-#Unit Scales (temperature, distance, etc.)
-tempunits = str(os.environ['TEMPUNITS'])
-
 #Global State Variables
 unlock_timer_state = "Off" # Start with unlock_timer_state "Off"
 unlock_end_time = datetime.now() #initialize the UnlockEndTime global
 unlock_timer = Timer(1,"")
+charge_timer_state = "Off" # Start with charge_timer_state = "Off"
+charge_start_time = datetime.now() # initialize charge_timer
+charge_timer = Timer(1,"")
 t = Timer(1, "")
 
 states = {
@@ -113,6 +109,22 @@ def IdentifyStateName(abbr):
     state_name = states[abbr]
     return state_name
 
+def GetCarTimezone(latitude, longitude):
+    global timezone, timezone_corrector
+    vehicle.wake_up()
+    location = geocoder.google([latitude, longitude], method='timezone')
+    timezone = location.timeZoneName
+    timezone_corrector = (location.rawOffset + location.dstOffset) / 3600
+
+def GetTempUnits():
+    vehicle.wake_up()
+    data = vehicle.data_request('gui_settings')
+    if (data['gui_temperature_units'] == "F"):
+        tempunits = "Fahrenheit"
+    else:
+        tempunits = "Celsius"
+    return tempunits
+
 # Returns the spoken time of day in the current time zone
 def SpeakTime(time_to_speak):
     tz_adj_hour = time_to_speak.hour + timezone_corrector
@@ -144,7 +156,7 @@ def SpeakTime(time_to_speak):
         spoken_time += " ay em "
     else:
         spoken_time += " pee em "
-    spoken_time += timezone + " Time, " # Add time zone to spoken time string
+    spoken_time += timezone + ", " # Add time zone to spoken time string
     return spoken_time
 
 # Convert Temperature to Fahrenheit if necessary
@@ -165,6 +177,7 @@ def FetchTemps(scale):
     return inside_temp, outside_temp
 
 # Function to convert decimal hours to hours and minutes in spoken text
+# Note: This is also used with seconds by dividing DecimalHours by 3600 in the function call
 def SpeakDurationHM(DecimalHours):
     int_hrs = int(DecimalHours)
     int_mins = int((DecimalHours - float(int_hrs)) * 60)
@@ -340,7 +353,7 @@ def UnlockCarDuration(unlock_duration):
         vehicle.command('door_unlock')
         unlock_timer_state = "On"
         unlock_end_time = end_time
-        text = "I've unlocked your car, and it will stay unlocked for %s, until %s." % (SpeakDurationHM(unlock_duration.seconds/3600), SpeakTime(end_time))
+        text = "I've unlocked your car, and it will stay unlocked for %s, until %s." % (SpeakDurationHM(unlock_duration.seconds/3600), SpeakTime(end_time + tz_adj_hour))
         data = vehicle.data_request('vehicle_state')
         unlock_timer = Timer(unlock_duration.seconds, LockCarAction) # Lock the car back up after 'minutes'
         unlock_timer.start()
@@ -389,17 +402,26 @@ def UnlockCar():
 # "Unlock my car until 9:00 AM."
 @ask.intent('UnlockCarTime', convert={'lock_time' : 'time'})
 def UnlockCarTime(lock_time):
-    global unlock_timer_state, unlock_timer, unlock_timer
+    global unlock_timer_state, unlock_timer, unlock_timer, timezone_corrector
     vehicle.wake_up()
     data = vehicle.data_request('vehicle_state')
+    # Change lock_time from purely time to datetime
     lock_time = datetime.combine(date.today(),lock_time)
     now = datetime.now()
+    # Since lock_time comes in as local time and now is in UCT, need to correct for time zone
+    # Also need to correct for case in which unlock_time is after midnight
     now_local = now + timedelta(hours=timezone_corrector)
+    # Correct for case in which lock time is actually tomorrow
     if lock_time > now_local:
         unlock_duration = lock_time - now_local
     else:
         unlock_duration = lock_time + timedelta(hours=24) - now_local
     end_time = now + unlock_duration
+    print "Lock time: " + str(lock_time)
+    print "Now: " + str(now)
+    print "Now-local: " + str(now_local)
+    print "Unlock duration: " + str(unlock_duration)
+    # If car is locked, then unlock it as requested.
     if data['locked']:
         vehicle.command('door_unlock')
         unlock_timer_state = "On"
@@ -408,12 +430,15 @@ def UnlockCarTime(lock_time):
         data = vehicle.data_request('vehicle_state')
         unlock_timer = Timer(unlock_duration.seconds, LockCarAction) # Lock the car back up after 'minutes'
         unlock_timer.start()
+    # If the unlock timer is already in effect, then reset the timer and inform the requester.
     elif unlock_timer_state == "On":
         unlock_timer.cancel()
         unlock_timer = Timer(unlock_duration.seconds, LockCarAction)
         unlock_timer.start()
         text = "Your car was already on an unlock timer, but I changed it to stay unlocked "
-        text += "until %s." % SpeakTime(end_time)
+        text += "until %s." % SpeakTime(end_time - timedelta(hours=timezone_corrector))
+    # If it's already unlocked, keep it that way, and inform the requester.
+    # Note: the
     else:
         text = "Your car is already unlocked.  I kept it that way."
     return statement(text)
@@ -444,6 +469,12 @@ def ChargeStart():
         text = "OK.  I've started charging your car."
     text += "I'll stop when it reaches %d percent charge." %data['charge_limit_soc']
     return statement(text)
+
+def StartChargeAction():
+    global charge_timer_state
+    vehicle.command('charge_stop')
+    charge_timer_state = "Off"
+    return
 
 # "How long will it take to charge my car?"
 @ask.intent('ChargeTime')
@@ -541,6 +572,13 @@ def DataDump():
         f.write("\n")
     f.close()
     return statement("OK.  I have written your car's data to a file.")
+
+# Get Units and Timezone for the car's location:
+data = vehicle.data_request('drive_state')
+latitude = data['latitude']
+longitude = data['longitude']
+GetCarTimezone(latitude, longitude) # TimeZone and Corrector (hours from GMT/UCT) using geocoder
+tempunits = GetTempUnits()
 
 # -------------------------------------------------------------------
 # Initiate the application for the hosting environment

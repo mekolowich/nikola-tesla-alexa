@@ -49,6 +49,7 @@ STEP 3: SET UP YOUR CLOUD9 SERVER ADDRESS IN YOUR AMAZON ACCOUNT
 1. Now, in Cloud9's menu bar, select Window/Share.
 2. In the information box under "Links to Share", you'll see a web address next to
    "Application:"  This is the address Alexa will use to call your server application.
+3. Copy this server address, and also check the box next to it marked PUBLIC.
 3. Go back to the Amazon Developer Console, go to the Configuration tab of the Nikola skill,
    choose HTTPS as the Service and paste the Cloud9 server address into the box.
 4. Finally, click the SSL CERTIFICATE tab in the Nikola skill, and choose the option that says:

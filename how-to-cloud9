@@ -1,0 +1,56 @@
+This file contains instructions on how to set up a single-user instance of the
+Alexa "Nikola" skill for monitoring and managing a Tesla automobile on a Cloud9 server.
+
+STEP 1: SET UP YOUR SKILL ON AMAZON'S DEVELOPER PLATFORM (ONE TIME)
+
+1. Go to http://developer.amazon.com and set up a developer account with your
+   Amazon username and password
+2. From the Developer console, select the ALEXA tab, and then the Alexa Skills Kit
+3. Press the "Add a New Skill" button
+4. Under "Skill Information", name your skill (I use "Nikola") and its invocation name (again, "nikola")
+5. Under "Skill Information", you should see an Application ID that starts with "amzn1.ask.skill..." --
+   copy this ID down somewhere, because you'll need it later.
+6. Under "Interaction Model", copy the contents of the intents.txt file into the "Intent Schema" box
+7. Also under "Interaction Model", copy the contents of the utterances.txt file into the
+  "Sample Utterances" box.
+8. SAVE it.
+9. That's it for now...you'll return later to complete this after you set up the server.
+
+STEP 2: SET UP A FREE CLOUD9 SERVER INSTANCE (ONE TIME)
+
+1. Go to http://c9.io and set up a new free account.
+2. Create a new workspace, name it, and make it private (you get one private workspace
+   with a free account)
+3. Choose the PYTHON template and "Create Workspace"
+4. Using the menu choice File/New File, create a new file copy the contents of
+   application.py from the GitHub repository into the new file, and SAVE AS application.py
+5. Do the same thing with teslajson.py
+6. Now, in the Command Line window (labeled "bash"), type the following command
+   to install the library that interfaces Alexa to Python:
+   sudo pip install flask-ask
+   Ignore all the error messages -- it will install in about 30 seconds
+7. Similarly, install additional libraries with the "sudo pip install" command:
+   sudo pip install datetime
+   sudo pip install geocoder
+   sudo pip install isodate
+8. Press the RUN button in the top bar of the screen.  Application will throw an
+   error, but the important thing is that it will open a RUN window at the bottom
+   of the screen.  On this screen, look for and click on ENV on the right side.
+9. Here, you will put in the environment variables for your own car and Alexa account --
+   the variable name goes in the left column and the value goes in the right:
+   -- TESLA_USER should be set to your Tesla username (in quotes)
+   -- TESLA_PASSWORD should be set to your Tesla password (in quotes)
+   -- APP_ID should be set to the Amazon Application ID you copied and set aside in Step 1.5 (in quotes)
+10. Click RUN again, and your application should now run OK.  You may get a security warning recommending
+   that you upgrade to Python 3; ignore it.
+
+STEP 3: SET UP YOUR CLOUD9 SERVER ADDRESS IN YOUR AMAZON ACCOUNT
+
+1. Now, in Cloud9's menu bar, select Window/Share.
+2. In the information box under "Links to Share", you'll see a web address next to
+   "Application:"  This is the address Alexa will use to call your server application.
+3. Go back to the Amazon Developer Console, go to the Configuration tab of the Nikola skill,
+   choose HTTPS as the Service and paste the Cloud9 server address into the box.
+
+At this point, you should be good to go.  If you don't have your Alexa device at hand, you can test
+the application by choosing the TEST tab in the developer console for the Nikola skill.

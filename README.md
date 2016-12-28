@@ -28,13 +28,16 @@ private information:
 * TESLA_PASSWORD: Tesla.com password;
 * APP_ID: App ID for the Alexa app that you create.
 
-In addition, the application needs these additional environment variables:
-* CHARGE_SPEED: Average charging speed for the location where charging most often occurs (in miles added per hour)
-
 The function DataDump() creates a file named tesladata.txt, which contains a
 complete dump of the data provided by the Tesla API.  An example of this file is
 provided in this repository.  (Note: location and vehicle name data is deleted
 for privacy reasons.)
+
+## Deploying the Nikola Skill using Cloud9
+I have written up a procedure on how to deploy the Nikola skill on a personal instance
+of the Amazon developer console and a free server instance on Cloud9.  Included are
+instructions on how to provision a free Cloud9 account and the steps to take in order to
+get the application/skill up and running.  You will find this in the file: how-to-cloud9.txt.
 
 ## Key Files in this repository
 Here are the most important files and what they do:

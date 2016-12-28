@@ -33,7 +33,7 @@ ask = Ask(application, '/')
 # Tesla Username and Password are stored separately as environment variables
 TESLA_USER = os.environ['TESLA_USER']
 TESLA_PASSWORD = os.environ['TESLA_PASSWORD']
-tesla_connection = teslajson.Connection("TESLA_USER", "TESLA_PASSWORD")
+tesla_connection = teslajson.Connection(TESLA_USER, TESLA_PASSWORD)
 vehicle = tesla_connection.vehicles[0]
 
 #Global State Variables

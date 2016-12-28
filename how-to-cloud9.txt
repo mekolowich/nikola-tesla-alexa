@@ -51,6 +51,8 @@ STEP 3: SET UP YOUR CLOUD9 SERVER ADDRESS IN YOUR AMAZON ACCOUNT
    "Application:"  This is the address Alexa will use to call your server application.
 3. Go back to the Amazon Developer Console, go to the Configuration tab of the Nikola skill,
    choose HTTPS as the Service and paste the Cloud9 server address into the box.
+4. Finally, click the SSL CERTIFICATE tab in the Nikola skill, and choose the option that says:
+  "My development endpoint is a sub-domain of a domain that has a wildcard certificate from a certificate authority"
 
 At this point, you should be good to go.  If you don't have your Alexa device at hand, you can test
 the application by choosing the TEST tab in the developer console for the Nikola skill.

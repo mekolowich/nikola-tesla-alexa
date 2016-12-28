@@ -286,7 +286,7 @@ def GetPluggedIn():
     data = vehicle.data_request('charge_state')
     if data['charge_port_door_open']:
         text = "Your car is plugged in, "
-        if (data['charge_state'] == "Charging"):
+        if (data['charging_state'] == "Charging"):
             text += "and it's charging."
         else:
             text += "but it's not charging."

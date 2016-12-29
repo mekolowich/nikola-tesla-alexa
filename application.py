@@ -426,7 +426,7 @@ def UnlockCarTime(lock_time):
         vehicle.command('door_unlock')
         unlock_timer_state = "On"
         unlock_end_time = end_time
-        text = "I've unlocked your car, and it will stay unlocked for %s, until %s." % (SpeakDurationHM(unlock_duration.seconds/3600), SpeakTime(end_time))
+        text = "I've unlocked your car, and it will stay unlocked for %s, until %s." % (SpeakDurationHM(float(unlock_duration.seconds)/3600), SpeakTime(end_time))
         data = vehicle.data_request('vehicle_state')
         unlock_timer = Timer(unlock_duration.seconds, LockCarAction) # Lock the car back up after 'minutes'
         unlock_timer.start()

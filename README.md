@@ -33,6 +33,13 @@ complete dump of the data provided by the Tesla API.  An example of this file is
 provided in this repository.  (Note: location and vehicle name data is deleted
 for privacy reasons.)
 
+## Known Issue
+During testing on multiple Tesla cars, it has been discovered that inside and outside
+temperatures are not always available through the API -- especially with Model S cars.
+This can cause the application to failure when the API returns "None" for an inside or
+outside temperature for a car.  A fix is currently being worked on, but in the meantime
+the temperature, status, and climate management commands may fail under certain circumstances.
+
 ## Deploying the Nikola Skill using Cloud9
 I have written up a procedure on how to deploy the Nikola skill on a personal instance
 of the Amazon developer console and a free server instance on Cloud9.  Included are

@@ -167,13 +167,20 @@ def ConvertTemp(temperature, scale):
 
 # Function to get the inside and outside temperatures and convert to Fahrenheit if necessary
 def FetchTemps(scale):
-    global inside_temp, outside_temp
+    global inside_temp, outside_temp, inside_temp_available, outside_temp_available
     vehicle.wake_up()
     data = vehicle.data_request('climate_state')
-    inside_temp = 0.0
-    outside_temp = 0.0
-    inside_temp= ConvertTemp(data['inside_temp'], scale)
-    outside_temp= ConvertTemp(data['outside_temp'], scale)
+    inside_temp_available = outside_temp_available = "Yes"
+    if data['inside_temp'] is None: # This handles the case in which inside/outside temperatures
+        inside_temp_available = "No"
+    if data['outside_temp'] is None:
+        outside_temp_available = "No"
+    if inside_temp_available == "Yes":
+        inside_temp = 0.0
+        inside_temp= ConvertTemp(data['inside_temp'], scale)
+    if outside_temp_available == "Yes":
+        outside_temp = 0.0
+        outside_temp= ConvertTemp(data['outside_temp'], scale)
     return inside_temp, outside_temp
 
 # Function to convert decimal hours to hours and minutes in spoken text
@@ -207,6 +214,21 @@ def SpeakChargeTime():
         spoken_charge_time += "It should be finished charging in about %s, which would make it ready around " %SpeakDurationHM(data['time_to_full_charge'])
         spoken_charge_time += "%s." %SpeakTime(charge_end_time)
     return spoken_charge_time
+
+# Function to speak the current inside/outside temperatures
+def SpeakTemperatures():
+    global inside_temp, outside_temp, inside_temp_available, outside_temp_available
+    if inside_temp_available == "Yes" and outside_temp_available == "Yes":
+        text = "Your car is %d degrees on the outside, " % outside_temp
+        text += "and %d degrees on the inside.  In " % inside_temp
+        text += "%s of course" % tempunits
+    elif inside_temp_available == "No" and outside_temp_available == "No":
+        text = "Temperatures are currently unavailable for your car."
+    elif inside_temp_available == "Yes":
+        text = "Your car is %d degrees on the inside.  Outside temperature is not currently available." % inside_temp
+    else:
+        text = "Your car is %d degrees on the outside.  Inside temperature is not currently available." % outside_temp
+    return text
 
 # -------------------------------------------------------------
 # Intent handlers
@@ -262,9 +284,7 @@ def GetRange():
 @ask.intent('GetTemperatures')
 def GetTemperatures():
     FetchTemps(tempunits)
-    text = "Your car is %d degrees on the outside, " % outside_temp
-    text += "and %d degrees on the inside.  In " % inside_temp
-    text += "%s of course" % tempunits
+    text = SpeakTemperatures()
     return statement(text)
 
 # "Is my car locked?"
@@ -286,7 +306,7 @@ def GetPluggedIn():
     data = vehicle.data_request('charge_state')
     if data['charge_port_door_open']:
         text = "Your car is plugged in, "
-        if (data['charging_state'] == "Charging"):
+        if (data['charge_state'] == "Charging"):
             text += "and it's charging."
         else:
             text += "but it's not charging."
@@ -314,9 +334,7 @@ def GetStatus():
     else:
        text += ". "
        text += SpeakChargeTime()
-    text += "At the moment, your car is %d degrees " % outside_temp
-    text += "%s outside " %tempunits
-    text += "and %d degrees on the inside. " % inside_temp
+    text += SpeakTemperatures()
     text += "You have put %.1f miles on the car." % data_vehicle['odometer']
     return statement(text)
 
@@ -333,9 +351,7 @@ def GetStatusQuick():
     text += "locked and " if data_vehicle['locked'] else "unlocked and "
     text += "not " if not(data_charge['charging_state']) else ""
     text += "charging. "
-    text += "Outside temp %d degrees " % outside_temp
-    text += "%s " % tempunits
-    text += "and inside %d degrees. " % inside_temp
+    text += SpeakTemperatures()
     text += "Odometer %d miles." % data_vehicle['odometer']
     return statement(text)
 
@@ -426,7 +442,7 @@ def UnlockCarTime(lock_time):
         vehicle.command('door_unlock')
         unlock_timer_state = "On"
         unlock_end_time = end_time
-        text = "I've unlocked your car, and it will stay unlocked for %s, until %s." % (SpeakDurationHM(float(unlock_duration.seconds)/3600), SpeakTime(end_time))
+        text = "I've unlocked your car, and it will stay unlocked for %s, until %s." % (SpeakDurationHM(unlock_duration.seconds/3600), SpeakTime(end_time))
         data = vehicle.data_request('vehicle_state')
         unlock_timer = Timer(unlock_duration.seconds, LockCarAction) # Lock the car back up after 'minutes'
         unlock_timer.start()
@@ -466,7 +482,7 @@ def ChargeStart():
         text = "Your car is already charging. "
     else:
         vehicle.command('charge_start')
-        text = "OK.  I've started charging your car."
+        text = "OK.  I've started charging your car. "
     text += "I'll stop when it reaches %d percent charge." %data['charge_limit_soc']
     return statement(text)
 
@@ -509,9 +525,12 @@ def ClimateStart():
     data = vehicle.data_request('climate_state')
     inside_temp = 0.0
     set_temp = 0.0
+    inside_temp_available = "Yes"
+    if data['inside_temp'] is None: # This handles the case in which inside/outside temperatures
+        inside_temp_available = "No"
     if data['is_climate_on']:
         return statement("Your climate system is already running.  No need for further action.")
-    else:
+    elif inside_temp_available == "Yes":
         inside_temp = ConvertTemp(data['inside_temp'], tempunits)
         set_temp = ConvertTemp(data['driver_temp_setting'], tempunits)
         if abs(set_temp - inside_temp) < 5:
@@ -525,6 +544,11 @@ def ClimateStart():
                 heat_cool = "cooling"
             text = "OK, I have started %s your car " % heat_cool
             text += "to %s degrees." % int(set_temp)
+    else:
+        vehicle.command('auto_conditioning_start')
+        set_temp = ConvertTemp(data['driver_temp_setting'], tempunits)
+        text = "Current inside temperature information is unavailable for your car, but I have started the climate system as you requested."
+        text =+ "It's set to %d degrees. " % set_temp
     return statement(text)
 
 # "Stop warming my car"

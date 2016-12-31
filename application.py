@@ -3,6 +3,7 @@ NIKOLA -- A python application for monitoring and managing
 a Tesla connected automobile from an Amazon Alexa natural language device
 
 Authors: Michael Kolowich, Andrew Payne
+Additional contributions from: Wayne Kozun
 October-December, 2016
 
 Requires:
@@ -204,7 +205,7 @@ def GetLocation():
     longitude = data['longitude']
     location = geocoder.google([latitude, longitude], method='reverse')
     text = "Right now, your car is in %s " % location.city
-    if location.country in ["US","CA,"AU"]:
+    if location.country in ["US","CA","AU"]:
         text += "%s, at " % location.state_long
     else:
         text += "%s, at " % location.country

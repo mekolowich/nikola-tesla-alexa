@@ -31,6 +31,9 @@ GetPluggedIn If my car is plugged in
 GetPluggedIn If my cars plugged in
 GetPluggedIn If my car charger is plugged in
 GetPluggedIn If I'm charging
+GetPluggedIn Is my car charging
+GetPluggedIn Whether my car is plugged in
+GetPluggedIn Whether my car is charging
 GetTemperatures How warm my car is
 GetTemperatures How cold my car is
 GetTemperatures What temperature my car is
@@ -118,3 +121,9 @@ ClimateStop Stop the air conditioner
 ClimateStop Stop the A.C.
 UnlockCarTime Unlock my car until {lock_time}
 UnlockCarTime Unlock the car till {lock_time}
+GetBirthday When is your birthday
+GetBirthday When is Elons birthday
+GetBirthday When is Elon Musks birthday
+GetBirthday When were you born
+MotherShipDistance How far is my car from the mother ship
+MotherShipDistance How far are we from the mother ship

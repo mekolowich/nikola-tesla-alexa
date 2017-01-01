@@ -22,6 +22,9 @@ from datetime import *
 import geocoder
 from dateutil.parser import parse
 from isodate import parse_time
+import logging
+import sys
+from geopy.distance import vincenty
 
 # Alexa Skill credentials are stored separately as an environment variable
 APP_ID = os.environ['APP_ID']
@@ -29,11 +32,13 @@ APP_ID = os.environ['APP_ID']
 # Hosting service looks for an 'application' callable by default.
 application = Flask(__name__)
 ask = Ask(application, '/')
+logging.getLogger('flask_ask').setLevel(logging.DEBUG)
 
 # Tesla API connection
 # Tesla Username and Password are stored separately as environment variables
 TESLA_USER = os.environ['TESLA_USER']
 TESLA_PASSWORD = os.environ['TESLA_PASSWORD']
+
 tesla_connection = teslajson.Connection(TESLA_USER, TESLA_PASSWORD)
 vehicle = tesla_connection.vehicles[0]
 
@@ -47,16 +52,14 @@ charge_timer = Timer(1,"")
 t = Timer(1, "")
 
 
-def IdentifyStateName(abbr):
-    state_name = states[abbr]
-    return state_name
-
 def GetCarTimezone(latitude, longitude):
     global timezone, timezone_corrector
     vehicle.wake_up()
     location = geocoder.google([latitude, longitude], method='timezone')
     timezone = location.timeZoneName
-    timezone_corrector = (location.rawOffset + location.dstOffset) / 3600
+    tz1=(location.rawOffset + location.dstOffset) / 3600
+    server_offset=(datetime.utcnow()-datetime.now()).total_seconds()/3600
+    timezone_corrector = round(server_offset + tz1,1) # added by WK
 
 def GetTempUnits():
     vehicle.wake_up()
@@ -66,6 +69,15 @@ def GetTempUnits():
     else:
         tempunits = "Celsius"
     return tempunits
+
+def GetDistUnits():
+    vehicle.wake_up()
+    data = vehicle.data_request('gui_settings')
+    if (data['gui_distance_units'][:1].lower() == "m"):
+        distunits = "miles"
+    else:
+        distunits = "kilometers"
+    return distunits
 
 # Returns the spoken time of day in the current time zone
 def SpeakTime(time_to_speak):
@@ -109,25 +121,24 @@ def ConvertTemp(temperature, scale):
 
 # Function to get the inside and outside temperatures and convert to Fahrenheit if necessary
 def FetchTemps(scale):
-    global inside_temp, outside_temp, inside_temp_available, outside_temp_available
+    global inside_temp, outside_temp
     vehicle.wake_up()
     data = vehicle.data_request('climate_state')
-    inside_temp_available = outside_temp_available = "Yes"
-    if data['inside_temp'] is None: # This handles the case in which inside/outside temperatures
-        inside_temp_available = "No"
-    if data['outside_temp'] is None:
-        outside_temp_available = "No"
-    if inside_temp_available == "Yes":
-        inside_temp = 0.0
+    inside_temp = 0.0
+    outside_temp = 0.0
+    inside_temp= data['inside_temp']
+    outside_temp= data['outside_temp']
+    if not (inside_temp is None):
         inside_temp= ConvertTemp(data['inside_temp'], scale)
-    if outside_temp_available == "Yes":
-        outside_temp = 0.0
+    if not (outside_temp is None):
         outside_temp= ConvertTemp(data['outside_temp'], scale)
     return inside_temp, outside_temp
 
 # Function to convert decimal hours to hours and minutes in spoken text
 # Note: This is also used with seconds by dividing DecimalHours by 3600 in the function call
 def SpeakDurationHM(DecimalHours):
+    print "============================"
+    print (DecimalHours)
     int_hrs = int(DecimalHours)
     int_mins = int((DecimalHours - float(int_hrs)) * 60)
     if int_hrs == 0:
@@ -157,21 +168,6 @@ def SpeakChargeTime():
         spoken_charge_time += "%s." %SpeakTime(charge_end_time)
     return spoken_charge_time
 
-# Function to speak the current inside/outside temperatures
-def SpeakTemperatures():
-    global inside_temp, outside_temp, inside_temp_available, outside_temp_available
-    if inside_temp_available == "Yes" and outside_temp_available == "Yes":
-        text = "Your car is %d degrees on the outside, " % outside_temp
-        text += "and %d degrees on the inside.  In " % inside_temp
-        text += "%s of course" % tempunits
-    elif inside_temp_available == "No" and outside_temp_available == "No":
-        text = "Temperatures are currently unavailable for your car."
-    elif inside_temp_available == "Yes":
-        text = "Your car is %d degrees on the inside.  Outside temperature is not currently available." % inside_temp
-    else:
-        text = "Your car is %d degrees on the outside.  Inside temperature is not currently available." % outside_temp
-    return text
-
 # -------------------------------------------------------------
 # Intent handlers
 # These are called by Alexa via flask_ask and return a string to be spoken
@@ -179,12 +175,18 @@ def SpeakTemperatures():
 #INTENTS FOR CHECKING STATUS OF CAR
 
 # "What is the charge level of my car?"
+"""
+@ask.launch
+def start():
+    welcome="Welcome, what info do you want about your car?"
+    return question(welcome)
+   """
 @ask.intent('GetChargeLevel')
 def GetChargeLevel():
     vehicle.wake_up()
     data = vehicle.data_request('charge_state')
     text = "Your current charge level is %d percent, " % data['battery_level']
-    text += "and your rated range is %d miles. " % data['battery_range']
+    text += "and your rated range is %d %s. " % (data['battery_range']*distscale,distunits)
     text += SpeakChargeTime()
     return statement(text)
 
@@ -193,7 +195,7 @@ def GetChargeLevel():
 def GetOdometer():
     vehicle.wake_up()
     data = vehicle.data_request('vehicle_state')
-    text = "Your odometer reading is %.1f miles." % data['odometer']
+    text = "Your odometer reading is %.1f %s." % (data['odometer']*distscale,distunits)
     return statement(text)
 
 # "Where is my car?"
@@ -218,15 +220,20 @@ def GetLocation():
 def GetRange():
     vehicle.wake_up()
     data = vehicle.data_request('charge_state')
-    text = "Your car's EPA rated range is %d miles, " % data['battery_range']
-    text += "but based on your recent driving patterns, your estimated range is %d miles." % data['est_battery_range']
+    text = "Your car's EPA rated range is %d %s, " % (data['battery_range']*distscale,distunits)
+    text += "but based on your recent driving patterns, your estimated range is %d %s." % (data['est_battery_range']*distscale,distunits)
     return statement(text)
 
 # "What is the temperature of my car?"
 @ask.intent('GetTemperatures')
 def GetTemperatures():
     FetchTemps(tempunits)
-    text = SpeakTemperatures()
+    if outside_temp is None:
+        text = "I can't get the temperatures right now.  Try turning on the climate and trying again"
+    else:
+        text = "Your car is %d degrees on the outside, " % outside_temp
+        text += "and %d degrees on the inside.  In " % inside_temp
+        text += "%s of course" % tempunits
     return statement(text)
 
 # "Is my car locked?"
@@ -248,7 +255,7 @@ def GetPluggedIn():
     data = vehicle.data_request('charge_state')
     if data['charge_port_door_open']:
         text = "Your car is plugged in, "
-        if (data['charge_state'] == "Charging"):
+        if (data['charging_state'] == "Charging"):
             text += "and it's charging."
         else:
             text += "but it's not charging."
@@ -267,17 +274,20 @@ def GetStatus():
     text = "As of "
     text += SpeakTime(now)
     text += "your charge level is %d percent. " % data_charge['battery_level']
-    text += "Your car's EPA rated range is %d miles, " % data_charge['battery_range']
-    text += "but based on your recent driving patterns, your estimated range is %d miles. " % data_charge['est_battery_range']
+    text += "Your car's EPA rated range is %d %s, " % (data_charge['battery_range']*distscale,distunits)
+    text += "but based on your recent driving patterns, your estimated range is %d %s. " % (data_charge['est_battery_range']*distscale,distunits)
     text += "It's currently "
-    text += "locked"
+    text += "locked" if data_vehicle['locked'] else "unlocked"
     if not(data_charge['charging_state'] == "Charging"):
        text += " and it's not charging. "
     else:
        text += ". "
        text += SpeakChargeTime()
-    text += SpeakTemperatures()
-    text += "You have put %.1f miles on the car." % data_vehicle['odometer']
+    if not(outside_temp is None):
+        text += "At the moment, your car is %d degrees " % outside_temp
+        text += "%s outside " %tempunits
+        text += "and %d degrees on the inside. " % inside_temp
+    text += "You have put %.1f %s on the car." % (data_vehicle['odometer']*distscale,distunits)
     return statement(text)
 
 # "What's the quick brief on my car?"
@@ -288,13 +298,30 @@ def GetStatusQuick():
     data_charge = vehicle.data_request ('charge_state')
     FetchTemps(tempunits)
     text = "Charge is %d percent. " % data_charge['battery_level']
-    text += "Rated range is %d miles, " % data_charge['battery_range']
-    text += "estimated %d miles. " % data_charge['est_battery_range']
+    text += "Rated range is %d %s, " % (data_charge['battery_range']*distscale,distunits)
+    text += "estimated %d %s. " % (data_charge['est_battery_range']*distscale,distunits)
     text += "locked and " if data_vehicle['locked'] else "unlocked and "
-    text += "not " if not(data_charge['charging_state']) else ""
+    text += "not " if not(data_charge['charging_state']=='Charging') else ""
     text += "charging. "
-    text += SpeakTemperatures()
-    text += "Odometer %d miles." % data_vehicle['odometer']
+    if not(outside_temp is None):
+        text += "Outside temp %d degrees " % outside_temp
+        text += "%s " % tempunits
+        text += "and inside %d degrees. " % inside_temp
+    text += "Odometer %d %s." % (data_vehicle['odometer']*distscale,distunits)
+    return statement(text)
+
+# Now for some Easter Eggs
+@ask.intent('GetBirthday')
+def GetBirthday():
+    text="The birthday of our dear leader, Elon Musk, is June 28"
+    return statement(text)
+
+@ask.intent('MotherShipDistance')
+def MotherShipDistance():
+    home=(latitude,longitude)
+    fremont_ca = (37.5483, -121.9886)
+    distance=int(vincenty(fremont_ca, home).miles)
+    text="Your car is currently %d %s from the Tesla factory in Fremont California" % (distance*distscale,distunits)
     return statement(text)
 
 # INTENTS THAT SEND COMMANDS TO THE CAR
@@ -311,7 +338,7 @@ def UnlockCarDuration(unlock_duration):
         vehicle.command('door_unlock')
         unlock_timer_state = "On"
         unlock_end_time = end_time
-        text = "I've unlocked your car, and it will stay unlocked for %s, until %s." % (SpeakDurationHM(unlock_duration.seconds/3600), SpeakTime(end_time + tz_adj_hour))
+        text = "I've unlocked your car, and it will stay unlocked for %s, until %s." % (SpeakDurationHM(float(unlock_duration.seconds)/3600), SpeakTime(end_time)) # + tz_adj_hour))
         data = vehicle.data_request('vehicle_state')
         unlock_timer = Timer(unlock_duration.seconds, LockCarAction) # Lock the car back up after 'minutes'
         unlock_timer.start()
@@ -384,7 +411,7 @@ def UnlockCarTime(lock_time):
         vehicle.command('door_unlock')
         unlock_timer_state = "On"
         unlock_end_time = end_time
-        text = "I've unlocked your car, and it will stay unlocked for %s, until %s." % (SpeakDurationHM(unlock_duration.seconds/3600), SpeakTime(end_time))
+        text = "I've unlocked your car, and it will stay unlocked for %s, until %s." % (SpeakDurationHM(float(unlock_duration.seconds)/3600), SpeakTime(end_time))
         data = vehicle.data_request('vehicle_state')
         unlock_timer = Timer(unlock_duration.seconds, LockCarAction) # Lock the car back up after 'minutes'
         unlock_timer.start()
@@ -412,7 +439,7 @@ def ChargeStop():
     else:
         text = "Sorry, but you car isn't charging, so I can't stop it. "
     text += "Your current charge level is %d percent, " % data['battery_level']
-    text += "and your rated range is %d miles." % data['battery_range']
+    text += "and your rated range is %d %s." % (data['battery_range']*distscale,distunits)
     return statement(text)
 
 # "Start charging my car."
@@ -467,30 +494,11 @@ def ClimateStart():
     data = vehicle.data_request('climate_state')
     inside_temp = 0.0
     set_temp = 0.0
-    inside_temp_available = "Yes"
-    if data['inside_temp'] is None: # This handles the case in which inside/outside temperatures
-        inside_temp_available = "No"
     if data['is_climate_on']:
         return statement("Your climate system is already running.  No need for further action.")
-    elif inside_temp_available == "Yes":
-        inside_temp = ConvertTemp(data['inside_temp'], tempunits)
-        set_temp = ConvertTemp(data['driver_temp_setting'], tempunits)
-        if abs(set_temp - inside_temp) < 5:
-            text = "The inside temperature of %s degrees is already pretty close to ideal," % int(inside_temp)
-            text += "so I didn't turn the climate system on, in the interest of saving energy."
-        else:
-            vehicle.command('auto_conditioning_start')
-            if set_temp > inside_temp:
-                heat_cool = "heating"
-            else:
-                heat_cool = "cooling"
-            text = "OK, I have started %s your car " % heat_cool
-            text += "to %s degrees." % int(set_temp)
     else:
         vehicle.command('auto_conditioning_start')
-        set_temp = ConvertTemp(data['driver_temp_setting'], tempunits)
-        text = "Current inside temperature information is unavailable for your car, but I have started the climate system as you requested."
-        text =+ "It's set to %d degrees. " % set_temp
+        text = "OK, I have started your car's climate system."
     return statement(text)
 
 # "Stop warming my car"
@@ -545,6 +553,11 @@ latitude = data['latitude']
 longitude = data['longitude']
 GetCarTimezone(latitude, longitude) # TimeZone and Corrector (hours from GMT/UCT) using geocoder
 tempunits = GetTempUnits()
+distscale=1
+distunits=GetDistUnits()
+if distunits == "kilometers":
+    distscale=1.60934
+
 
 # -------------------------------------------------------------------
 # Initiate the application for the hosting environment

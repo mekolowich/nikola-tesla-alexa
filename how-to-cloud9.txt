@@ -1,6 +1,9 @@
 This file contains instructions on how to set up a single-user instance of the
 Alexa "Nikola" skill for monitoring and managing a Tesla automobile on a Cloud9 server.
 
+Please note that on a free Cloud9 account, your back-end application will terminate after
+two hours.  If you want to keep this up and running indefinitely, you should get a paid Cloud9 account.
+
 STEP 1: SET UP YOUR SKILL ON AMAZON'S DEVELOPER PLATFORM (ONE TIME)
 
 1. Go to http://developer.amazon.com and set up a developer account with your

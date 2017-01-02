@@ -4,6 +4,7 @@ Nikola is a python application for monitoring and managing
 a Tesla connected automobile from an Amazon Alexa natural language device
 
 Authors: Michael Kolowich, Andrew Payne;
+Additional contributions: Wayne Kozun
 October/November, 2016
 
 Requires:

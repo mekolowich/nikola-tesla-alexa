@@ -77,7 +77,7 @@ def GetDistUnits():
         distunits = "kilometers"
     return distunits
 
-def GetTimeFormat(): #required for 24 hour time
+def GetTimeFormat(): #requried for 24 hour time
     vehicle.wake_up()
     data = vehicle.data_request('gui_settings')
     hour_format= True if data['gui_24_hour_time'] == 'true' else False
@@ -563,13 +563,3 @@ distunits=GetDistUnits()
 hour24=GetTimeFormat()
 if distunits == "kilometers":
     distscale=1.60934
-
-
-# -------------------------------------------------------------------
-# Initiate the application for the hosting environment
-# This will probably vary for different hosting environments; this is for Cloud9
-if __name__ == "__main__":
-    host = os.getenv('IP', '0.0.0.0')
-    port = int(os.getenv('PORT', 8080))
-    application.debug = True
-    application.run(host=host, port=port)

@@ -79,17 +79,23 @@ def GetDistUnits():
         distunits = "kilometers"
     return distunits
 
+def GetTimeFormat(): #requried for 24 hour time
+    vehicle.wake_up()
+    data = vehicle.data_request('gui_settings')
+    hour_format= True if data['gui_24_hour_time'] == 'true' else False
+    return hour_format
+
 # Returns the spoken time of day in the current time zone
 def SpeakTime(time_to_speak):
     tz_adj_hour = time_to_speak.hour + timezone_corrector
     if tz_adj_hour < 0: # Handles cases where adjusted time is less than zero
-        spoken_hour = tz_adj_hour + 12
+        spoken_hour = tz_adj_hour + 12 + hour24*12
         AM_PM = "PM"
     elif tz_adj_hour == 0: # Handles case where adjusted time is midnight
-        spoken_hour = 12
+        spoken_hour = 12 * (1-hour24)
         AM_PM = "AM"
     elif tz_adj_hour > 12: # Handles cases where adjusted time is afternoon/evening
-        spoken_hour = tz_adj_hour - 12
+        spoken_hour = tz_adj_hour - 12 * (1-hour24)
         AM_PM = "PM"
     elif tz_adj_hour == 12: # Handles cases where adjusted time is noon
         spoken_hour = tz_adj_hour
@@ -106,10 +112,11 @@ def SpeakTime(time_to_speak):
         spoken_minute = str(time_to_speak.minute)
     spoken_time += spoken_minute + " " # Add minutes to spoken time string
     # Need to find out a better way for Alexa to articulate "AM" and "PM"
-    if AM_PM == "AM":
-        spoken_time += " ay em "
-    else:
-        spoken_time += " pee em "
+    if not(hour24):
+        if AM_PM == "AM":
+            spoken_time += " ay em "
+        else:
+            spoken_time += " pee em "
     spoken_time += timezone + ", " # Add time zone to spoken time string
     return spoken_time
 
@@ -555,6 +562,7 @@ GetCarTimezone(latitude, longitude) # TimeZone and Corrector (hours from GMT/UCT
 tempunits = GetTempUnits()
 distscale=1
 distunits=GetDistUnits()
+hour24=GetTimeFormat()
 if distunits == "kilometers":
     distscale=1.60934
 

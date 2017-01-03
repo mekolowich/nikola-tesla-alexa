@@ -12,7 +12,7 @@ flask_ask by John Wheeler (on GitHub)
 #import necessary components
 import os
 from flask import Flask, request, jsonify
-from flask_ask import Ask, statement
+from flask_ask import Ask, statement, session
 import teslajson
 from threading import Timer
 import time
@@ -32,13 +32,45 @@ application = Flask(__name__)
 ask = Ask(application, '/')
 logging.getLogger('flask_ask').setLevel(logging.DEBUG)
 
+#Flag to use userId/password or token
+def use_token():
+    if os.environ['USE_TOKEN'] == "YES":
+        return True
+    else:
+        return False
+
+# Check if Alexa Skill credentials included OAUTH token
+def passed_token():
+    if hasattr(session, 'user') and hasattr(session.user, 'accessToken'):
+        if format(session.user.accessToken) == "None":
+            return False
+        else:
+            return True
+    else:
+        return False
+
+#Function to use passed token or global variable
+def assign_tesla_token():
+    if passed_token():
+        return session.user.accessToken
+    else:
+        return os.environ['TESLA_TOKEN']
+
 # Tesla API connection
 # Tesla Username and Password are stored separately as environment variables
-TESLA_USER = os.environ['TESLA_USER']
-TESLA_PASSWORD = os.environ['TESLA_PASSWORD']
+@ask.on_session_started  
+def create_tesla_connection():
+    global ASSIGNED_TOKEN, vehicle
+    TESLA_USER = os.environ['TESLA_USER']
+    TESLA_PASSWORD = os.environ['TESLA_PASSWORD']
+    ASSIGNED_TOKEN = assign_tesla_token()
 
-tesla_connection = teslajson.Connection(TESLA_USER, TESLA_PASSWORD)
-vehicle = tesla_connection.vehicles[0]
+    if use_token():
+        tesla_connection = teslajson.Connection(TESLA_USER, TESLA_PASSWORD, ASSIGNED_TOKEN)
+    else:
+        tesla_connection = teslajson.Connection(TESLA_USER, TESLA_PASSWORD)
+    vehicle = tesla_connection.vehicles[0]
+    return
 
 #Global State Variables
 unlock_timer_state = "Off" # Start with unlock_timer_state "Off"

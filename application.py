@@ -58,19 +58,15 @@ def assign_tesla_token():
 
 # Tesla API connection
 # Tesla Username and Password are stored separately as environment variables
-@ask.on_session_started  
-def create_tesla_connection():
-    global ASSIGNED_TOKEN, vehicle
-    TESLA_USER = os.environ['TESLA_USER']
-    TESLA_PASSWORD = os.environ['TESLA_PASSWORD']
-    ASSIGNED_TOKEN = assign_tesla_token()
+TESLA_USER = os.environ['TESLA_USER']
+TESLA_PASSWORD = os.environ['TESLA_PASSWORD']
+ASSIGNED_TOKEN = assign_tesla_token()
 
-    if use_token():
-        tesla_connection = teslajson.Connection(TESLA_USER, TESLA_PASSWORD, ASSIGNED_TOKEN)
-    else:
-        tesla_connection = teslajson.Connection(TESLA_USER, TESLA_PASSWORD)
-    vehicle = tesla_connection.vehicles[0]
-    return
+if use_token():
+    tesla_connection = teslajson.Connection(TESLA_USER, TESLA_PASSWORD, ASSIGNED_TOKEN)
+else:
+    tesla_connection = teslajson.Connection(TESLA_USER, TESLA_PASSWORD)
+vehicle = tesla_connection.vehicles[0]
 
 #Global State Variables
 unlock_timer_state = "Off" # Start with unlock_timer_state "Off"

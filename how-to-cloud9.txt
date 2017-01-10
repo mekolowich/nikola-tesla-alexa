@@ -36,6 +36,7 @@ STEP 2: SET UP A FREE CLOUD9 SERVER INSTANCE (ONE TIME)
    sudo pip install datetime
    sudo pip install geocoder
    sudo pip install isodate
+   sudo pip install geopy
 8. Press the RUN button in the top bar of the screen.  Application will throw an
    error, but the important thing is that it will open a RUN window at the bottom
    of the screen.  On this screen, look for and click on ENV on the right side.

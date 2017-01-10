@@ -27,7 +27,9 @@ The following need to be entered as Environment Variables because they contain
 private information:
 * TESLA_USER: Tesla.com username for the Tesla automobile to be monitored and managed;
 * TESLA_PASSWORD: Tesla.com password;
-* APP_ID: App ID for the Alexa app that you create.
+* APP_ID: App ID for the Alexa app that you create;
+* USE_TOKEN: Set to YES if you want to use a provided OAUTH token instead of Tesla.com username and password;
+* TESLA_TOKEN: Active OAUTH token for the Tesla automobile to be monitored and managd.
 
 The function DataDump() creates a file named tesladata.txt, which contains a
 complete dump of the data provided by the Tesla API.  An example of this file is

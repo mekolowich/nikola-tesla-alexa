@@ -4,7 +4,7 @@ Flask==0.11.1
 Flask-Ask==0.7.8
 Jinja2==2.8
 MarkupSafe==0.23
-Pillow==2.3.0
+Pillow==8.1.1
 PyYAML==3.12
 SecretStorage==2.0.0
 Werkzeug==0.11.11

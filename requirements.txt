@@ -2,7 +2,7 @@ BzrTools==2.6.0
 DateTime==4.1.1
 Flask==0.11.1
 Flask-Ask==0.7.8
-Jinja2==2.8
+Jinja2==2.11.3
 MarkupSafe==0.23
 Pillow==2.3.0
 PyYAML==3.12
